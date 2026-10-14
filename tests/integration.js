@@ -8,6 +8,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const app = require('../src/app');
+const values = { admin: 'admin', client: 'client', active: 'active' };
+const { checkSchema } = require('../src/config/schema');
 const { pool, query } = require('../src/config/database');
 const progress = require('../src/services/progress-service');
 const { businessDate, utcDate } = require('../src/utils/time');
@@ -63,7 +65,7 @@ function futureClass(name, capacity = 3) {
 async function pastReservation(userId, weeksAgo = 1) {
   const start = new Date(Date.now() - weeksAgo * 7 * 86400000);
   const end = new Date(start.getTime() + 3600000);
-  const item = await query(`INSERT INTO classes
+  const item = await query(`INSERT INTO scheduled_classes
     (name, category, instructor_name, starts_at, ends_at, capacity, price, description)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [`Past Yoga ${runId}`, 'yoga', 'Demo Coach', start, end, 20, '25000.00', 'Past fixture']);
@@ -93,14 +95,15 @@ async function run() {
   for (const statement of schema.split(';').filter((value) => value.trim())) {
     await query(statement);
   }
+  await checkSchema(pool);
   server = await new Promise((resolve) => {
     const listening = app.listen(0, '127.0.0.1', () => resolve(listening));
   });
   baseUrl = `http://127.0.0.1:${server.address().port}`;
   const adminEmail = `admin${runId}@fitpulse.example`;
-  const password = 'DemoPassword123';
-  await query('INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-    ['Demo Admin', adminEmail, password, 'admin']);
+  const password = process.env.ADMIN_PASSWORD;
+  await query('INSERT INTO users (name, email, `password`, role, status) VALUES (?, ?, ?, ?, ?)',
+    ['Demo Admin', adminEmail, password, values.admin, values.active]);
   const session = await call('POST', '/sessions', { email: adminEmail, password }, null,
     201, 'Administrator session');
   const admin = session.accessToken;
@@ -111,6 +114,8 @@ async function run() {
   }, null, 201, 'Registration');
   await call('POST', '/users', { name: 'Demo', email: 'bad', password: 'short' }, null,
     400, 'Invalid registration');
+  await call('POST', '/users', { name: 'x'.repeat(46),
+    email: `long${runId}@fitpulse.example`, password }, null, 400, 'User name exceeds database length');
   await call('POST', '/users', { name: 'Demo', email: client.email, password }, null,
     409, 'Duplicate email');
   await call('POST', '/users', { name: 'Demo', email: 'other@example.com', password,
@@ -135,12 +140,14 @@ async function run() {
   await call('POST', '/classes', futureClass('Forbidden'), token, 403, 'Client cannot create class');
   await call('POST', '/classes', { ...futureClass('Invalid'), capacity: '3' }, admin,
     400, 'Wrong capacity type');
+  await call('POST', '/classes', { ...futureClass('Long instructor'), instructorName: 'x'.repeat(46) },
+    admin, 400, 'instructor_name name exceeds database length');
   await call('POST', '/classes', { ...futureClass('Invalid time'),
     startsAt: '2030-01-01T24:00:00Z' }, admin, 400, 'Invalid hour');
   await call('GET', '/classes', undefined, token, 200, 'Class catalog');
   await call('GET', '/classes?limit=1001', undefined, token, 400, 'Invalid pagination');
   await call('GET', `/classes/${item.id}`, undefined, token, 200, 'Class details');
-  await call('GET', '/classes/4294967295', undefined, token, 404, 'Missing class');
+  await call('GET', '/classes/2147483647', undefined, token, 404, 'Missing class');
   await call('PATCH', `/classes/${item.id}`, { capacity: 4 }, admin, 200, 'Update class');
   await call('PATCH', `/classes/${item.id}`, { capacity: 0 }, admin, 400, 'Invalid class update');
   const disposable = await call('POST', '/classes', futureClass('Disposable'), admin,
@@ -150,10 +157,12 @@ async function run() {
   const bundle = await call('POST', '/packages', { name: 'Starter', classQuantity: 5,
     price: 120000, description: 'Five classes' }, admin, 201, 'Create package');
   await call('POST', '/packages', { name: 'Invalid' }, admin, 400, 'Invalid package');
+  await call('POST', '/packages', { name: 'x'.repeat(46), classQuantity: 1,
+    price: 1, description: 'Test fixture' }, admin, 400, 'Package name exceeds database length');
   await call('GET', '/packages', undefined, token, 200, 'Package catalog');
   await call('GET', '/packages?limit=0', undefined, token, 400, 'Invalid package pagination');
   await call('GET', `/packages/${bundle.id}`, undefined, token, 200, 'Package details');
-  await call('GET', '/packages/4294967295', undefined, token, 404, 'Missing package');
+  await call('GET', '/packages/2147483647', undefined, token, 404, 'Missing package');
   await call('PATCH', `/packages/${bundle.id}`, { price: 125000 }, admin,
     200, 'Update package');
   await call('PATCH', `/packages/${bundle.id}`, { price: -1 }, admin,
@@ -170,7 +179,7 @@ async function run() {
   await call('GET', '/purchases', undefined, admin, 200, 'Admin purchase details');
   await call('GET', '/purchases', undefined, token, 403, 'Client cannot list all purchases');
   await call('GET', `/purchases/${purchase.id}`, undefined, token, 200, 'Own purchase');
-  await call('GET', '/purchases/4294967295', undefined, token, 404, 'Missing purchase');
+  await call('GET', '/purchases/2147483647', undefined, token, 404, 'Missing purchase');
   await call('GET', `/users/${client.id}/purchases`, undefined, token, 200, 'Own purchases');
   await call('GET', `/users/${session.user.id}/purchases`, undefined, token, 403,
     'Different user purchases rejected');
@@ -181,7 +190,7 @@ async function run() {
   await call('POST', '/reservations', { classId: item.id }, token, 409, 'Duplicate reservation');
   await call('GET', `/reservations/${reservation.id}`, undefined, token, 200,
     'Reservation details');
-  await call('GET', '/reservations/4294967295', undefined, token, 404, 'Missing reservation');
+  await call('GET', '/reservations/2147483647', undefined, token, 404, 'Missing reservation');
   await call('GET', `/users/${client.id}/reservations?status=reserved`, undefined,
     token, 200, 'Reserved classes');
   await call('GET', `/users/${client.id}/reservations?status=wrong`, undefined,
@@ -190,7 +199,7 @@ async function run() {
     409, 'Reserved class history protected');
   await call('PATCH', `/reservations/${reservation.id}/attendance`, { status: 'attended' },
     admin, 409, 'Future attendance rejected');
-  await call('POST', '/reviews', { reservationId: reservation.id, rating: 5 }, token,
+  await call('POST', '/reviews', { classId: item.id, rating: 5 }, token,
     409, 'Review before attendance rejected');
   const past = await pastReservation(client.id);
   await call('POST', '/reservations', { classId: past.classId }, token,
@@ -199,26 +208,33 @@ async function run() {
     admin, 200, 'Record attendance');
   await call('GET', `/users/${client.id}/reservations?status=attended`, undefined,
     token, 200, 'Attended classes');
-  await call('POST', '/reviews', { reservationId: past.id, rating: 5,
+  const review = await call('POST', '/reviews', { classId: past.classId, rating: 5,
     comment: 'Clear instructions', intensity: 'moderate', tags: ['Friendly','organized'] },
     token, 201, 'Create review with optional attributes');
-  await call('POST', '/reviews', { reservationId: past.id, rating: 5 }, token,
+  await call('POST', '/reviews', { classId: past.classId, rating: 5 }, token,
     409, 'Duplicate review');
-  await call('GET', `/reviews/${past.id}`, undefined, token, 200, 'Review details');
-  await call('GET', '/reviews/4294967295', undefined, token, 404, 'Missing review');
+  await call('GET', `/reviews/${review.id}`, undefined, token, 200, 'Review details');
+  await call('GET', '/reviews/2147483647', undefined, token, 404, 'Missing review');
   await call('GET', `/classes/${past.classId}/reviews`, undefined, token, 200,
     'Class reviews');
-  await call('GET', '/classes/4294967295/reviews', undefined, token, 404,
+  await call('GET', '/classes/2147483647/reviews', undefined, token, 404,
     'Reviews of missing class');
-  const changed = await call('PATCH', `/reviews/${past.id}`, { tags: [] }, token,
+  const changed = await call('PATCH', `/reviews/${review.id}`, { tags: [] }, token,
     200, 'Clear review tags');
   verify(changed.comment === 'Clear instructions' && changed.intensity === 'moderate',
     'PATCH must preserve omitted fields');
-  await call('PATCH', `/reviews/${past.id}`, { tags: ['good','GOOD'] }, token,
+  await call('PATCH', `/reviews/${review.id}`, { tags: ['good','GOOD'] }, token,
     400, 'Duplicate tags rejected');
-  await call('DELETE', `/reviews/${past.id}`, undefined, token, 204, 'Delete review');
-  await call('DELETE', `/reviews/${past.id}`, undefined, token, 404, 'Delete missing review');
-  await call('POST', '/reviews', { reservationId: past.id, rating: 4 }, token,
+  verify(review.user_id === client.id && review.class_id === past.classId,
+    'Review must keep its own identifier and direct user/class references');
+  await call('PATCH', `/reviews/${review.id}`, { classId: item.id }, token,
+    400, 'Reviewed class cannot be replaced');
+  await call('DELETE', `/reviews/${review.id}`, undefined, token, 204, 'Delete review');
+  const afterDeletion = await call('GET', `/users/${client.id}/progress`, undefined, token,
+    200, 'Deleting a review preserves recorded attendance');
+  verify(afterDeletion.totalAttended === 1, 'Attendance must be independent of reviews');
+  await call('DELETE', `/reviews/${review.id}`, undefined, token, 404, 'Delete missing review');
+  const replacementReview = await call('POST', '/reviews', { classId: past.classId, rating: 4 }, token,
     201, 'Optional review fields can be omitted');
   const record = await call('POST', `/users/${client.id}/personal-records`, {
     exercise: 'Deadlift', recordType: 'maximum_weight', value: 80,
@@ -226,13 +242,16 @@ async function run() {
   }, token, 201, 'Create personal record');
   await call('POST', `/users/${client.id}/personal-records`, { exercise: 'Deadlift' },
     token, 400, 'Incomplete personal record');
+  await call('POST', `/users/${client.id}/personal-records`, { exercise: 'Deadlift',
+    recordType: 'x'.repeat(46), value: 80, unit: 'kg', achievedOn: businessDate() }, token,
+    400, 'Record type exceeds database length');
   await call('GET', `/users/${client.id}/personal-records`, undefined, token,
     200, 'Personal records list');
   await call('GET', `/users/${session.user.id}/personal-records`, undefined, token,
     403, 'Different user records rejected');
   await call('GET', `/personal-records/${record.id}`, undefined, token,
     200, 'Personal record details');
-  await call('GET', '/personal-records/4294967295', undefined, token,
+  await call('GET', '/personal-records/2147483647', undefined, token,
     404, 'Missing personal record');
   await call('PATCH', `/personal-records/${record.id}`, { value: 85 }, token,
     200, 'Update personal record');
@@ -242,6 +261,13 @@ async function run() {
     204, 'Delete personal record');
   await call('DELETE', `/personal-records/${record.id}`, undefined, token,
     404, 'Delete missing personal record');
+  const noShow = await pastReservation(client.id, 2);
+  await call('PATCH', `/reservations/${noShow.id}/attendance`, { status: 'no_show' }, admin,
+    200, 'Record absence after class completion');
+  await call('POST', '/reviews', { classId: noShow.classId, rating: 5 }, token,
+    409, 'An absent client cannot review a class');
+  await call('PATCH', `/reservations/${noShow.id}/attendance`, { status: 'attended' }, admin,
+    409, 'Final attendance state cannot be overwritten');
   const stats = await call('GET', `/users/${client.id}/progress`, undefined, token,
     200, 'Weekly streak and category totals');
   verify(stats.weeklyStreak === 1 && stats.categoryTotals.yoga === 1,
@@ -250,6 +276,8 @@ async function run() {
     'Progress query must finish within ten seconds');
   await call('GET', `/users/${session.user.id}/progress`, undefined, token,
     403, 'Different user progress rejected');
+  await call('PATCH', `/reservations/${reservation.id}/attendance`, { status: 'attended' }, token,
+    403, 'Client cannot register its own attendance');
   const summary = await call('GET', `/reports/sales?date=${businessDate()}`,
     undefined, admin, 200, 'Daily sales report');
   verify(Number(summary.totalPaid) >= 125000, 'Daily report must include the purchase');
@@ -266,7 +294,7 @@ async function run() {
     null, 201, 'Second client session');
   await call('GET', `/reservations/${reservation.id}`, undefined,
     otherSession.accessToken, 403, 'Reservation ownership');
-  await call('PATCH', `/reviews/${past.id}`, { rating: 1 }, otherSession.accessToken,
+  await call('PATCH', `/reviews/${replacementReview.id}`, { rating: 1 }, otherSession.accessToken,
     403, 'Review ownership');
   for (let attempt = 1; attempt <= 5; attempt += 1) {
     await call('POST', '/sessions', { email: other.email, password: 'WrongPassword' }, null,
@@ -274,29 +302,32 @@ async function run() {
   }
   await call('POST', '/sessions', { email: other.email, password }, null,
     423, 'Correct password rejected during lock');
-  const locked = await query('SELECT failed_login_attempts, locked_until FROM users WHERE id = ?',
+  const locked = await query('SELECT failed_login_attempts, locked_until FROM users WHERE idusers = ?',
     [other.id]);
   verify(locked[0].failed_login_attempts === 5, 'Failed attempt counter must persist');
   const lockSeconds = (utcDate(locked[0].locked_until) - new Date()) / 1000;
   verify(lockSeconds > 890 && lockSeconds <= 900, 'Lock must last approximately 15 minutes');
-  await query('UPDATE users SET locked_until = DATE_SUB(UTC_TIMESTAMP(), INTERVAL 1 SECOND) WHERE id = ?',
+  await query('UPDATE users SET locked_until = DATE_SUB(UTC_TIMESTAMP(), INTERVAL 1 SECOND) WHERE idusers = ?',
     [other.id]);
   await call('POST', '/sessions', { email: other.email, password }, null,
     201, 'Login after simulated lock expiry');
   const single = await call('POST', '/classes', futureClass('Last Spot',1), admin,
     201, 'Create class with one spot');
+  const beforeConcurrent = evidence.length;
   const concurrent = await Promise.all([
     call('POST', '/reservations', { classId: single.id }, token, [201,409], 'Concurrent reservation A'),
     call('POST', '/reservations', { classId: single.id }, otherSession.accessToken,
       [201,409], 'Concurrent reservation B')
   ]);
+  verify(JSON.stringify(evidence.slice(beforeConcurrent).map(testCase => testCase.status).sort()) === '[201,409]',
+    'The last available spot must have one success and one conflict');
   verify(concurrent.length === 2, 'Both concurrent requests must complete');
   const count = await query('SELECT COUNT(*) AS total FROM reservations WHERE class_id = ?',
     [single.id]);
   verify(Number(count[0].total) === 1, 'Concurrent requests cannot exceed capacity');
   await assert.rejects(query(
-    'INSERT INTO purchases (user_id, package_id, paid_price) VALUES (?, ?, ?)',
-    [4294967295, bundle.id, '1.00']
+    'INSERT INTO purchases (idusers, idpackages, paid_price) VALUES (?, ?, ?)',
+    [2147483647, bundle.id, '1.00']
   ), { code: 'ER_NO_REFERENCED_ROW_2' });
   assertions += 1;
   await assert.rejects(query(
@@ -305,26 +336,36 @@ async function run() {
   ), { code: 'ER_DUP_ENTRY' });
   assertions += 1;
   await assert.rejects(query(
-    'INSERT INTO reviews (reservation_id, rating, tags) VALUES (?, ?, ?)',
-    [reservation.id, 6, '[]']
+    'INSERT INTO reviews (iduser, idclass, rating, tags) VALUES (?, ?, ?, ?)',
+    [client.id, item.id, 6, '[]']
   ), { code: 'ER_CHECK_CONSTRAINT_VIOLATED' });
   assertions += 1;
+  await assert.rejects(query(
+    'INSERT INTO reviews (iduser, idclass, rating, tags) VALUES (?, ?, ?, ?)',
+    [client.id, past.classId, 5, '[]']
+  ), { code: 'ER_DUP_ENTRY' });
+  assertions += 1;
+  await assert.rejects(query(
+    'INSERT INTO reviews (iduser, idclass, rating, tags) VALUES (?, ?, ?, ?)',
+    [client.id, 2147483647, 5, '[]']
+  ), { code: 'ER_NO_REFERENCED_ROW_2' });
+  assertions += 1;
   const crossYear = progress.calculate([
-    { attended_at: '2025-12-29 13:00:00', category: 'yoga' },
-    { attended_at: '2026-01-05 13:00:00', category: 'spinning' },
-    { attended_at: '2026-01-06 13:00:00', category: 'spinning' }
+    { starts_at: '2025-12-29 13:00:00', category: 'yoga' },
+    { starts_at: '2026-01-05 13:00:00', category: 'spinning' },
+    { starts_at: '2026-01-06 13:00:00', category: 'spinning' }
   ], '2026-01-12');
   verify(crossYear.weeklyStreak === 2 && crossYear.categoryTotals.spinning === 2,
     'Weekly streak must cross year boundaries and deduplicate weeks');
   verify(businessDate(new Date('2026-10-14T04:59:59Z')) === '2026-10-13',
     'Business day must use Bogota time');
   const boundaryPurchase = await query(`INSERT INTO purchases
-    (user_id, package_id, purchased_at, paid_price) VALUES (?, ?, ?, ?)`,
+    (idusers, idpackages, purchased_at, paid_price) VALUES (?, ?, ?, ?)`,
     [client.id, bundle.id, '2020-01-02 04:59:59', '0.01']);
   const boundaryReport = await call('GET', '/reports/sales?date=2020-01-01',
     undefined, admin, 200, 'Sales across the UTC day boundary');
   verify(Number(boundaryReport.totalPaid) >= 0.01, 'Sales must use the business day');
-  await query('DELETE FROM purchases WHERE id = ?', [boundaryPurchase.insertId]);
+  await query('DELETE FROM purchases WHERE idpurchase = ?', [boundaryPurchase.insertId]);
   const specification = await fetch(`${baseUrl}/openapi.json`);
   const spec = await specification.json();
   verify(Object.values(spec.paths).reduce((sum, item) => sum + Object.keys(item).length,0) === 35,
@@ -346,6 +387,11 @@ async function run() {
   }
   const catalogLoad = await loadTest('/classes', token);
   const personalLoad = await loadTest(`/users/${client.id}/reservations`, token);
+  const [tables] = await query('SELECT COUNT(*) AS total FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()');
+  const [columns] = await query('SELECT COUNT(*) AS total FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE()');
+  const [foreignKeys] = await query('SELECT COUNT(*) AS total FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA = DATABASE()');
+  verify(Number(tables.total) === 7 && Number(columns.total) === 49 && Number(foreignKeys.total) === 7,
+    'Complete model must have seven tables, 49 columns and seven foreign keys');
   return { passed: true, assertions, httpCases: evidence.length, coverage,
     mysqlVersion: (await query('SELECT VERSION() AS version'))[0].version,
     catalogLoad, personalLoad, executedAt: new Date().toISOString(),
@@ -374,8 +420,8 @@ async function main() {
           'This is captured integration-test evidence; Postman was not used to execute it. ' +
           'Set baseUrl and accessToken for manual exploration. ' +
           'Rerun npm test for a reproducible complete run.' },
-      variable: [{ key: 'baseUrl', value: process.env.BASE_URL || 'http://localhost:3000' },
-        { key: 'accessToken', value: '' }, { key: 'password', value: 'DemoPassword123' }],
+      variable: [{ key: 'baseUrl', value: process.env.BASE_URL || 'http://localhost:5000' },
+        { key: 'accessToken', value: '' }, { key: 'password', value: '' }],
       item: evidence.map((item, index) => {
         const body = item.requestBody ? { ...item.requestBody } : undefined;
         if (body && body.password === '[redacted]') body.password = '{{password}}';

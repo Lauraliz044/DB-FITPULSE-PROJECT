@@ -4,7 +4,7 @@ const { ok, created } = require('./response');
 
 const create = asyncHandler(async (request, response) => {
   const item = await service.create(request.body, request.user);
-  created(response, `/reviews/${item.reservation_id}`, item);
+  created(response, `/reviews/${item.id}`, item);
 });
 
 const get = asyncHandler(async (request, response) => {

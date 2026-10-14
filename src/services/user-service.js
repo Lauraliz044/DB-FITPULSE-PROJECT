@@ -12,7 +12,7 @@ function credentials(body, registration = false) {
     fail(400, 'password must contain between 8 and 200 characters');
   }
   const data = { email, password: body.password };
-  if (registration) data.name = check.text(body.name, 'name', 100);
+  if (registration) data.name = check.text(body.name, 'name', 45);
   return data;
 }
 

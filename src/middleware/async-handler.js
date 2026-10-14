@@ -1,7 +1,7 @@
-function asyncHandler(handler) {
-  return async function (request, response, next) {
+function asyncHandler(action) {
+  return async function handleRequest(request, response, next) {
     try {
-      await handler(request, response, next);
+      await action(request, response, next);
     } catch (error) {
       next(error);
     }

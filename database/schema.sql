@@ -1,166 +1,92 @@
--- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
---
--- Host: localhost    Database: db_proyecto
--- ------------------------------------------------------
--- Server version	8.0.46
+CREATE TABLE IF NOT EXISTS users (
+  idusers INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(45) NOT NULL,
+  email VARCHAR(254) NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  role VARCHAR(10) NOT NULL DEFAULT 'client',
+  status VARCHAR(10) NOT NULL DEFAULT 'active',
+  registered_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  failed_login_attempts INT UNSIGNED NOT NULL DEFAULT 0,
+  locked_until DATETIME NULL,
+  CONSTRAINT uq_users_email UNIQUE (email),
+  CONSTRAINT chk_user_role CHECK (role IN ('client', 'admin')),
+  CONSTRAINT chk_user_status CHECK (status IN ('active', 'inactive'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+CREATE TABLE IF NOT EXISTS scheduled_classes (
+  idscheduled_classes INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(45) NOT NULL,
+  instructor_name VARCHAR(45) NOT NULL,
+  category VARCHAR(45) NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  capacity INT NOT NULL,
+  starts_at DATETIME NOT NULL,
+  ends_at DATETIME NOT NULL,
+  description TEXT NOT NULL,
+  CONSTRAINT chk_class_capacity CHECK (capacity > 0),
+  CONSTRAINT chk_class_price CHECK (price >= 0),
+  CONSTRAINT chk_class_schedule CHECK (ends_at > starts_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Table structure for table `clases_programadas`
---
+CREATE TABLE IF NOT EXISTS packages (
+  idpackages INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(45) NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  class_quantity INT NOT NULL,
+  description TEXT NOT NULL,
+  CONSTRAINT chk_package_quantity CHECK (class_quantity > 0),
+  CONSTRAINT chk_package_price CHECK (price >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-DROP TABLE IF EXISTS `clases_programadas`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `clases_programadas` (
-  `idClases_programadas` int NOT NULL,
-  `nombre` varchar(45) NOT NULL,
-  `Instructor` varchar(45) NOT NULL,
-  `categoria` varchar(45) NOT NULL,
-  `cupo_total` int NOT NULL,
-  `precio` decimal(10,2) NOT NULL,
-  `fechayhora_inicio` datetime NOT NULL,
-  `fechayhora_final` datetime NOT NULL,
-  PRIMARY KEY (`idClases_programadas`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
+CREATE TABLE IF NOT EXISTS purchases (
+  idpurchase INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  paid_price DECIMAL(10,2) NOT NULL,
+  purchased_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  idusers INT NOT NULL,
+  idpackages INT NOT NULL,
+  CONSTRAINT fk_purchases_user FOREIGN KEY (idusers) REFERENCES users(idusers),
+  CONSTRAINT fk_purchases_package FOREIGN KEY (idpackages) REFERENCES packages(idpackages),
+  CONSTRAINT chk_paid_price CHECK (paid_price >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Table structure for table `compra`
---
+CREATE TABLE IF NOT EXISTS reservations (
+  idreservation INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  class_id INT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  status VARCHAR(10) NOT NULL DEFAULT 'reserved',
+  CONSTRAINT fk_reservations_user FOREIGN KEY (user_id) REFERENCES users(idusers),
+  CONSTRAINT fk_reservations_class FOREIGN KEY (class_id) REFERENCES scheduled_classes(idscheduled_classes),
+  CONSTRAINT uq_reservation_user_class UNIQUE (user_id, class_id),
+  CONSTRAINT chk_reservation_status CHECK (status IN ('reserved', 'attended', 'no_show'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-DROP TABLE IF EXISTS `compra`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `compra` (
-  `idcompra` int NOT NULL,
-  `fecha_compra` datetime NOT NULL,
-  `precio_pagado` decimal(10,0) NOT NULL,
-  `usuarios_idusuarios` int NOT NULL,
-  `Paquetes_idPaquetes` int NOT NULL,
-  PRIMARY KEY (`idcompra`),
-  KEY `fk_compra_usuarios_idx` (`usuarios_idusuarios`),
-  KEY `fk_compra_Paquetes1_idx` (`Paquetes_idPaquetes`),
-  CONSTRAINT `fk_compra_Paquetes1` FOREIGN KEY (`Paquetes_idPaquetes`) REFERENCES `paquetes` (`idPaquetes`),
-  CONSTRAINT `fk_compra_usuarios` FOREIGN KEY (`usuarios_idusuarios`) REFERENCES `usuarios` (`idusuarios`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
+CREATE TABLE IF NOT EXISTS reviews (
+  idreview INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  rating TINYINT NOT NULL,
+  comment TEXT NULL,
+  tags JSON NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  iduser INT NOT NULL,
+  idclass INT NOT NULL,
+  intensity VARCHAR(10) NULL,
+  CONSTRAINT fk_reviews_user FOREIGN KEY (iduser) REFERENCES users(idusers),
+  CONSTRAINT fk_reviews_class FOREIGN KEY (idclass) REFERENCES scheduled_classes(idscheduled_classes),
+  CONSTRAINT uq_review_user_class UNIQUE (iduser, idclass),
+  CONSTRAINT chk_rating CHECK (rating BETWEEN 1 AND 5),
+  CONSTRAINT chk_intensity CHECK (intensity IS NULL OR intensity IN ('low', 'moderate', 'high')),
+  CONSTRAINT chk_tags_array CHECK (JSON_TYPE(tags) = 'ARRAY')
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Table structure for table `marcas_personales`
---
-
-DROP TABLE IF EXISTS `marcas_personales`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `marcas_personales` (
-  `idMarca` int NOT NULL,
-  `ejercicio` varchar(120) NOT NULL,
-  `tipo_marca` varchar(45) NOT NULL,
-  `valor` decimal(12,3) NOT NULL,
-  `unidad` varchar(45) NOT NULL,
-  `fecha_logro` date NOT NULL,
-  `usuarios_idusuarios` int NOT NULL,
-  PRIMARY KEY (`idMarca`),
-  KEY `fk_Marcas_personales_usuarios1_idx` (`usuarios_idusuarios`),
-  CONSTRAINT `fk_Marcas_personales_usuarios1` FOREIGN KEY (`usuarios_idusuarios`) REFERENCES `usuarios` (`idusuarios`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `paquetes`
---
-
-DROP TABLE IF EXISTS `paquetes`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `paquetes` (
-  `idPaquetes` int NOT NULL,
-  `nombre` varchar(45) NOT NULL,
-  `cantidad_clases` int NOT NULL,
-  `precio` decimal(10,2) NOT NULL,
-  `descripcion` text NOT NULL,
-  PRIMARY KEY (`idPaquetes`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `reserva`
---
-
-DROP TABLE IF EXISTS `reserva`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `reserva` (
-  `idreserva` int NOT NULL,
-  `fecha_creacion` datetime NOT NULL,
-  `estado` varchar(45) NOT NULL,
-  `fechayhora_asistencia` datetime NOT NULL,
-  `usuarios_idusuarios` int NOT NULL,
-  `Clases_programadas_idClases_programadas` int NOT NULL,
-  PRIMARY KEY (`idreserva`),
-  KEY `fk_reserva_usuarios1_idx` (`usuarios_idusuarios`),
-  KEY `fk_reserva_Clases_programadas1_idx` (`Clases_programadas_idClases_programadas`),
-  CONSTRAINT `fk_reserva_Clases_programadas1` FOREIGN KEY (`Clases_programadas_idClases_programadas`) REFERENCES `clases_programadas` (`idClases_programadas`),
-  CONSTRAINT `fk_reserva_usuarios1` FOREIGN KEY (`usuarios_idusuarios`) REFERENCES `usuarios` (`idusuarios`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `reseñas`
---
-
-DROP TABLE IF EXISTS `reseñas`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `reseñas` (
-  `idreserva` int NOT NULL,
-  `calificacion` tinyint NOT NULL,
-  `comentario` text NOT NULL,
-  `fecha_creacion` datetime NOT NULL,
-  `ultima_actualizacion` datetime NOT NULL,
-  `etiquetas` json NOT NULL,
-  PRIMARY KEY (`idreserva`),
-  CONSTRAINT `fk_resenas_reserva` FOREIGN KEY (`idreserva`) REFERENCES `reserva` (`idreserva`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `usuarios`
---
-
-DROP TABLE IF EXISTS `usuarios`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `usuarios` (
-  `idusuarios` int NOT NULL,
-  `nombre` varchar(45) NOT NULL,
-  `Correo_electronico` varchar(254) NOT NULL,
-  `Contraseña` varchar(255) NOT NULL,
-  `rol` tinyint NOT NULL,
-  `estado` tinyint NOT NULL,
-  `fecha_registro` datetime NOT NULL,
-  PRIMARY KEY (`idusuarios`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2026-10-14 11:21:07
+CREATE TABLE IF NOT EXISTS personal_records (
+  idrecord INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  exercise VARCHAR(120) NOT NULL,
+  record_type VARCHAR(45) NOT NULL,
+  value DECIMAL(12,3) NOT NULL,
+  unit VARCHAR(45) NOT NULL,
+  achieved_on DATE NOT NULL,
+  CONSTRAINT fk_records_user FOREIGN KEY (user_id) REFERENCES users(idusers),
+  CONSTRAINT chk_record_value CHECK (value > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

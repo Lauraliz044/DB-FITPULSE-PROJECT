@@ -45,8 +45,7 @@ async function attendance(id, body) {
     if (item.status !== 'reserved' && item.status !== status) {
       fail(409, 'Attendance has already been recorded');
     }
-    const attendedAt = status === 'attended' ? item.starts_at : null;
-    return repository.attendance(id, status, attendedAt, connection);
+    return repository.attendance(id, status, connection);
   });
 }
 

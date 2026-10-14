@@ -8,7 +8,7 @@ const names = ['name', 'classQuantity', 'price', 'description'];
 function validate(body) {
   check.fields(body, names, names);
   return {
-    name: check.text(body.name, 'name', 100),
+    name: check.text(body.name, 'name', 45),
     classQuantity: check.integer(body.classQuantity, 'classQuantity'),
     price: check.decimal(body.price, 'price', 99999999.99, 2),
     description: check.text(body.description, 'description', 5000)

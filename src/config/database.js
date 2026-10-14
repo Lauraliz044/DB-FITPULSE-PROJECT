@@ -22,7 +22,6 @@ async function transaction(action) {
   const connection = await pool.getConnection();
   try {
     await connection.query("SET time_zone = '+00:00'");
-    await connection.query('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
     await connection.beginTransaction();
     const result = await action(connection);
     await connection.commit();

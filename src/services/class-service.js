@@ -14,9 +14,9 @@ function validate(body) {
   if (utcDate(startsAt) <= new Date()) fail(400, 'startsAt must be in the future');
   if (endsAt <= startsAt) fail(400, 'endsAt must be after startsAt');
   return {
-    name: check.text(body.name, 'name', 100),
-    category: check.text(body.category, 'category', 50).toLowerCase(),
-    instructorName: check.text(body.instructorName, 'instructorName', 100),
+    name: check.text(body.name, 'name', 45),
+    category: check.text(body.category, 'category', 45).toLowerCase(),
+    instructorName: check.text(body.instructorName, 'instructorName', 45),
     startsAt, endsAt,
     capacity: check.integer(body.capacity, 'capacity'),
     price: check.decimal(body.price, 'price', 99999999.99, 2),

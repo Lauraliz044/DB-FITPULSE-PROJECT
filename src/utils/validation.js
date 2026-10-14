@@ -17,13 +17,13 @@ function fields(body, allowed, required = []) {
 function text(value, name, maxLength, nullable = false) {
   if (value === null && nullable) return null;
   if (typeof value !== 'string' || !value.trim() ||
-      [...value.trim()].length > maxLength) {
+      value.trim().length > maxLength) {
     fail(400, `${name} must be nonempty text of at most ${maxLength} characters`);
   }
   return value.trim();
 }
 
-function integer(value, name, minimum = 1, maximum = 4294967295) {
+function integer(value, name, minimum = 1, maximum = 2147483647) {
   if (!Number.isInteger(value) || value < minimum || value > maximum) {
     fail(400, `${name} must be an integer between ${minimum} and ${maximum}`);
   }

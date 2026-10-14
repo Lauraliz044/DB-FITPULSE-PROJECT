@@ -5,16 +5,17 @@ const { businessDate, utcDate, weekStart, previousWeek } = require('../utils/tim
 const settings = require('../config/settings');
 
 function calculate(rows, today = businessDate()) {
-  const weeks = new Set();
+  const weeks = [];
   const categoryTotals = {};
-  for (const item of rows) {
-    weeks.add(weekStart(businessDate(utcDate(item.attended_at))));
-    categoryTotals[item.category] = (categoryTotals[item.category] || 0) + 1;
+  for (const reservation of rows) {
+    const week = weekStart(businessDate(utcDate(reservation.starts_at)));
+    if (!weeks.includes(week)) weeks.push(week);
+    categoryTotals[reservation.category] = (categoryTotals[reservation.category] || 0) + 1;
   }
   const currentWeek = weekStart(today);
-  let cursor = weeks.has(currentWeek) ? currentWeek : previousWeek(currentWeek);
+  let cursor = weeks.includes(currentWeek) ? currentWeek : previousWeek(currentWeek);
   let weeklyStreak = 0;
-  while (weeks.has(cursor)) {
+  while (weeks.includes(cursor)) {
     weeklyStreak += 1;
     cursor = previousWeek(cursor);
   }

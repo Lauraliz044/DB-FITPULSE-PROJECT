@@ -1,10 +1,12 @@
 const app = require('./app');
 const { pool, query } = require('./config/database');
 const settings = require('./config/settings');
+const { checkSchema } = require('./config/schema');
 
 async function start() {
   try {
     await query('SELECT 1');
+    await checkSchema(pool);
     app.listen(settings.port, () => {
       console.log(`FitPulse API: ${settings.baseUrl}${settings.apiPrefix}`);
       console.log(`API documentation: ${settings.baseUrl}/docs`);

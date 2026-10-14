@@ -2,15 +2,18 @@
   "name": "fitpulse-api",
   "version": "1.0.0",
   "private": true,
-  "description": "FitPulse REST API with Express and MySQL",
+  "description": "FitPulse classroom API with English SQL and basic JavaScript functions",
   "main": "src/server.js",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "db:setup": "node scripts/setup-database.js",
     "db:seed": "node scripts/seed-database.js",
-    "test": "node tests/integration.js"
+    "test": "node tests/integration.js",
+    "db:demo": "node scripts/seed-demo.js"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

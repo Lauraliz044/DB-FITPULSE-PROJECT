@@ -11,10 +11,10 @@ function validate(body) {
   const achievedOn = check.date(body.achievedOn, 'achievedOn');
   if (achievedOn > businessDate()) fail(400, 'achievedOn cannot be in the future');
   return {
-    exercise: check.text(body.exercise, 'exercise', 100),
-    recordType: check.text(body.recordType, 'recordType', 50),
+    exercise: check.text(body.exercise, 'exercise', 120),
+    recordType: check.text(body.recordType, 'recordType', 45),
     value: check.decimal(body.value, 'value', 999999999.999, 3, 0.001),
-    unit: check.text(body.unit, 'unit', 20), achievedOn
+    unit: check.text(body.unit, 'unit', 45), achievedOn
   };
 }
 

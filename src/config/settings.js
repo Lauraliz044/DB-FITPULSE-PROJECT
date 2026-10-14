@@ -21,6 +21,7 @@ function positiveSetting(name, defaultValue) {
 }
 
 const settings = {
+  bodyLimit: process.env.MAX_BODY_SIZE || '100kb',
   port: positiveSetting('PORT', 3000),
   apiPrefix: process.env.API_PREFIX || '/api/v1',
   baseUrl: process.env.BASE_URL || 'http://localhost:3000',

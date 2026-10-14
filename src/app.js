@@ -6,7 +6,7 @@ const openapi = require('../docs/openapi.json');
 
 const app = express();
 app.disable('x-powered-by');
-app.use(express.json({ limit: '100kb' }));
+app.use(express.json({ limit: settings.bodyLimit }));
 openapi.servers = [{ url: `${settings.baseUrl}${settings.apiPrefix}` }];
 app.get('/openapi.json', (request, response) => response.json(openapi));
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapi));

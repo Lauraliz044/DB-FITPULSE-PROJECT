@@ -1,5 +1,6 @@
 const repository = require('../repositories/review-repository');
 const reservations = require('../repositories/reservation-repository');
+const { transaction } = require('../config/database');
 const classes = require('../repositories/class-repository');
 const check = require('../utils/validation');
 const { fail, found, allowOwner } = require('../utils/errors');
@@ -21,15 +22,22 @@ function validate(body) {
 }
 
 async function create(body, user) {
-  check.fields(body, ['reservationId', ...names], ['reservationId', 'rating']);
-  const reservationId = check.integer(body.reservationId, 'reservationId');
+  check.fields(body, ['classId', ...names], ['classId', 'rating']);
+  const classId = check.integer(body.classId, 'classId');
   const reviewBody = { ...body };
-  delete reviewBody.reservationId;
-  const data = validate(reviewBody);
-  const item = found(await reservations.findById(reservationId), 'Reservation');
-  allowOwner(user, item.user_id, false);
-  if (item.status !== 'attended') fail(409, 'Only attended classes can be reviewed');
-  return repository.create({ ...data, reservationId });
+  delete reviewBody.classId;
+  const reviewData = validate(reviewBody);
+  return transaction(async (connection) => {
+    found(await classes.findById(classId, connection, true), 'Class');
+    const reservation = await reservations.findByUserClass(user.id, classId, connection);
+    if (!reservation || reservation.status !== 'attended') {
+      fail(409, 'Only classes attended by this user can be reviewed');
+    }
+    if (await repository.findByUserClass(user.id, classId, connection)) {
+      fail(409, 'This user already reviewed the class');
+    }
+    return repository.create(user.id, { ...reviewData, classId }, connection);
+  });
 }
 
 async function get(id) {
@@ -45,18 +53,16 @@ async function list(classId, query) {
 async function update(id, body, user) {
   check.fields(body, names);
   if (!Object.keys(body).length) fail(400, 'At least one field is required');
-  const item = found(await reservations.findById(id), 'Reservation');
-  allowOwner(user, item.user_id, false);
   const old = await get(id);
+  allowOwner(user, old.user_id, false);
   const current = { rating: old.rating, comment: old.comment,
     intensity: old.intensity, tags: old.tags };
   return repository.update(id, validate({ ...current, ...body }));
 }
 
 async function remove(id, user) {
-  const item = found(await reservations.findById(id), 'Reservation');
-  allowOwner(user, item.user_id, false);
-  await get(id);
+  const review = await get(id);
+  allowOwner(user, review.user_id, false);
   await repository.remove(id);
 }
 

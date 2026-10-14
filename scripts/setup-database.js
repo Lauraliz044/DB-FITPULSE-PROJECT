@@ -2,6 +2,7 @@ require('dotenv').config({ quiet: true });
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const mysql = require('mysql2/promise');
+const { checkSchema } = require('../src/config/schema');
 
 async function setup() {
   let connection;
@@ -19,9 +20,12 @@ async function setup() {
       CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci`);
     await connection.query(`USE \`${databaseName}\``);
     await connection.query("SET time_zone = '+00:00'");
+    const [tables] = await connection.query('SHOW TABLES');
+    if (tables.length) await checkSchema(connection);
     const sql = await fs.readFile(path.join(__dirname, '../database/schema.sql'), 'utf8');
     await connection.query(sql);
-    console.log('Database schema is ready');
+    await checkSchema(connection);
+    console.log('The complete English database schema is ready');
   } catch (error) {
     console.error(`Database setup failed: ${error.code || error.message}`);
     process.exitCode = 1;
