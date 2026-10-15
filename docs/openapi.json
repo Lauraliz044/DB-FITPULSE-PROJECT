@@ -1,0 +1,4499 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "FitPulse API",
+    "version": "1.0.0",
+    "description": "REST API of FitPulse (Node.js, Express and MySQL). Every response body is JSON: successful responses wrap the result in data and failed responses return error.message.\n\nTo try protected endpoints: run POST /sessions, copy accessToken and paste it in the Authorize button."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api/v1",
+      "description": "Local server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Sessions",
+      "description": "Login with email and password"
+    },
+    {
+      "name": "Users",
+      "description": "Accounts and the resources that belong to each user"
+    },
+    {
+      "name": "Classes",
+      "description": "Scheduled gym classes"
+    },
+    {
+      "name": "Packages",
+      "description": "Class packages for sale"
+    },
+    {
+      "name": "Purchases",
+      "description": "Package purchases"
+    },
+    {
+      "name": "Reservations",
+      "description": "Class reservations and attendance"
+    },
+    {
+      "name": "Reviews",
+      "description": "Reviews of attended classes"
+    },
+    {
+      "name": "Personal records",
+      "description": "Personal training records"
+    },
+    {
+      "name": "Reports",
+      "description": "Administrative reports"
+    }
+  ],
+  "paths": {
+    "/sessions": {
+      "post": {
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Log in",
+        "description": "Checks the email and password against the users table and returns a JWT access token. Five consecutive failed attempts lock the account for fifteen minutes.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Credentials"
+              },
+              "example": {
+                "email": "admin@fitpulse.example",
+                "password": "AdminPass123"
+              }
+            }
+          }
+        },
+        "security": [],
+        "responses": {
+          "201": {
+            "description": "Valid credentials. Session created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Session"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "tokenType": "Bearer",
+                    "expiresIn": "1h",
+                    "user": {
+                      "id": 1,
+                      "name": "FitPulse Administrator",
+                      "email": "admin@fitpulse.example",
+                      "role": "admin",
+                      "status": "active",
+                      "registered_at": "2026-10-14 21:37:05"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing field, unknown field or invalid email/password format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Invalid email"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Wrong email or password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Invalid credentials"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account is inactive",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Account is inactive"
+                  }
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Too many failed attempts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Account is temporarily locked"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Register a client",
+        "description": "Creates a client account. The role is always client and the password is stored as plain text in this course stage. The password is never returned.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              },
+              "example": {
+                "name": "Demo Client",
+                "email": "client@fitpulse.example",
+                "password": "ClientPass123"
+              }
+            }
+          }
+        },
+        "security": [],
+        "responses": {
+          "201": {
+            "description": "Client registered",
+            "headers": {
+              "Location": {
+                "description": "URI of the new resource",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 2,
+                    "name": "Demo Client",
+                    "email": "client@fitpulse.example",
+                    "role": "client",
+                    "status": "active",
+                    "registered_at": "2026-10-14 21:37:05"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing field, unknown field or invalid format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "password must contain between 8 and 200 characters"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The email is already registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "The resource already exists"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "List users",
+        "description": "Administrator only. Paginated list of users.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 2,
+                      "name": "Demo Client",
+                      "email": "client@fitpulse.example",
+                      "role": "client",
+                      "status": "active",
+                      "registered_at": "2026-10-14 21:37:05"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid pagination",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "limit cannot exceed 1000"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Administrator access is required"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get a user",
+        "description": "Returns a user profile. A client can only read its own profile; an administrator can read any profile.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 2,
+                    "name": "Demo Client",
+                    "email": "client@fitpulse.example",
+                    "role": "client",
+                    "status": "active",
+                    "registered_at": "2026-10-14 21:37:05"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "id must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Access denied"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "User not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/status": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Activate or deactivate a user",
+        "description": "Administrator only. An inactive user cannot log in and its existing tokens are rejected.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusInput"
+              },
+              "example": {
+                "status": "inactive"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 2,
+                    "name": "Demo Client",
+                    "email": "client@fitpulse.example",
+                    "role": "client",
+                    "status": "inactive",
+                    "registered_at": "2026-10-14 21:37:05"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "status must be one of: active, inactive"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Administrator access is required"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "User not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/purchases": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "List the purchases of a user",
+        "description": "Purchase history of one user. A client can only read its own history.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchases of the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Purchase"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "user_id": 2,
+                      "package_id": 1,
+                      "purchased_at": "2026-10-14 21:37:05",
+                      "paid_price": "120000.00",
+                      "buyer_name": "Demo Client",
+                      "buyer_email": "client@fitpulse.example",
+                      "package_name": "Starter",
+                      "class_quantity": 5
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier or pagination",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "userId must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Access denied"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "User not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/reservations": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "List the reservations of a user",
+        "description": "Reservations of one user, optionally filtered by status. A client can only read its own reservations.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Filter by reservation status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "reserved",
+                "attended",
+                "no_show"
+              ]
+            }
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reservations of the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Reservation"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "user_id": 2,
+                      "class_id": 1,
+                      "created_at": "2026-10-14 21:37:05",
+                      "status": "reserved",
+                      "class_name": "Future Yoga",
+                      "category": "yoga",
+                      "starts_at": "2026-10-16 21:37:05",
+                      "ends_at": "2026-10-16 22:37:05"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier, status filter or pagination",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "status must be one of: reserved, attended, no_show"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Access denied"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "User not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/personal-records": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "List the personal records of a user",
+        "description": "Personal records of one user, newest first. A client can only read its own records.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Personal records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PersonalRecord"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "user_id": 2,
+                      "exercise": "Deadlift",
+                      "record_type": "maximum_weight",
+                      "value": "80.000",
+                      "unit": "kg",
+                      "achieved_on": "2026-10-14"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier or pagination",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "userId must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Access denied"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "User not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create a personal record",
+        "description": "Client only. A client can only create records for itself. achievedOn cannot be a future date.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonalRecordInput"
+              },
+              "example": {
+                "exercise": "Deadlift",
+                "recordType": "maximum_weight",
+                "value": 80,
+                "unit": "kg",
+                "achievedOn": "2026-10-14"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Personal record created",
+            "headers": {
+              "Location": {
+                "description": "URI of the new resource",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PersonalRecord"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "user_id": 2,
+                    "exercise": "Deadlift",
+                    "record_type": "maximum_weight",
+                    "value": "80.000",
+                    "unit": "kg",
+                    "achieved_on": "2026-10-14"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing field, unknown field or invalid value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "recordType is required"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Access denied"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/progress": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get the progress of a user",
+        "description": "Weekly streak of attended classes (weeks start on Monday, Bogota time) and the number of attended classes per category.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Progress of the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Progress"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "weeklyStreak": 1,
+                    "totalAttended": 1,
+                    "categoryTotals": {
+                      "yoga": 1
+                    },
+                    "timeZone": "America/Bogota",
+                    "weekStartsOn": "Monday"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "userId must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Access denied"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "User not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classes": {
+      "get": {
+        "tags": [
+          "Classes"
+        ],
+        "summary": "List scheduled classes",
+        "description": "Class catalog ordered by start time. Includes the available spots of each class.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of classes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Class"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "name": "Future Yoga",
+                      "category": "yoga",
+                      "instructor_name": "Demo Coach",
+                      "starts_at": "2026-10-16 21:37:05",
+                      "ends_at": "2026-10-16 22:37:05",
+                      "capacity": 3,
+                      "price": "25000.00",
+                      "description": "Mobility and breathing",
+                      "available_spots": 3
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid pagination or unknown query parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "offset must be a nonnegative integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Account is inactive"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Classes"
+        ],
+        "summary": "Create a class",
+        "description": "Administrator only. startsAt must be in the future and endsAt must be after startsAt. The category is stored in lowercase.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClassInput"
+              },
+              "example": {
+                "name": "Future Yoga",
+                "category": "yoga",
+                "instructorName": "Demo Coach",
+                "startsAt": "2026-12-01T13:00:00Z",
+                "endsAt": "2026-12-01T14:00:00Z",
+                "capacity": 3,
+                "price": 25000,
+                "description": "Mobility and breathing"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Class created",
+            "headers": {
+              "Location": {
+                "description": "URI of the new resource",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Class"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "name": "Future Yoga",
+                    "category": "yoga",
+                    "instructor_name": "Demo Coach",
+                    "starts_at": "2026-10-16 21:37:05",
+                    "ends_at": "2026-10-16 22:37:05",
+                    "capacity": 3,
+                    "price": "25000.00",
+                    "description": "Mobility and breathing",
+                    "available_spots": 3
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing field, unknown field or invalid value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "capacity must be an integer between 1 and 2147483647"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Administrator access is required"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classes/{id}": {
+      "get": {
+        "tags": [
+          "Classes"
+        ],
+        "summary": "Get a class",
+        "description": "Returns one scheduled class.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Class found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Class"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "name": "Future Yoga",
+                    "category": "yoga",
+                    "instructor_name": "Demo Coach",
+                    "starts_at": "2026-10-16 21:37:05",
+                    "ends_at": "2026-10-16 22:37:05",
+                    "capacity": 3,
+                    "price": "25000.00",
+                    "description": "Mobility and breathing",
+                    "available_spots": 3
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "id must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Account is inactive"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The class does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Class not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Classes"
+        ],
+        "summary": "Update a class",
+        "description": "Administrator only. Partial update: omitted fields keep their value. A class that already has reservations cannot be changed.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClassUpdate"
+              },
+              "example": {
+                "capacity": 4
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Class updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Class"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "name": "Future Yoga",
+                    "category": "yoga",
+                    "instructor_name": "Demo Coach",
+                    "starts_at": "2026-10-16 21:37:05",
+                    "ends_at": "2026-10-16 22:37:05",
+                    "capacity": 4,
+                    "price": "25000.00",
+                    "description": "Mobility and breathing",
+                    "available_spots": 4
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty body, unknown field or invalid value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "capacity must be an integer between 1 and 2147483647"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Administrator access is required"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The class does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Class not found"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The class has reservations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "A class with reservations cannot be changed"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Classes"
+        ],
+        "summary": "Delete a class",
+        "description": "Administrator only. Only future classes without reservations can be deleted.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted. The response has no body"
+          },
+          "400": {
+            "description": "Invalid identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "id must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Administrator access is required"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The class does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Class not found"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The class already started or has reservations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Only future classes without reservations can be deleted"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classes/{classId}/reviews": {
+      "get": {
+        "tags": [
+          "Classes"
+        ],
+        "summary": "List the reviews of a class",
+        "description": "Reviews of one class, newest first.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/classId"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reviews of the class",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Review"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "user_id": 2,
+                      "class_id": 3,
+                      "rating": 5,
+                      "comment": "Clear instructions",
+                      "intensity": "moderate",
+                      "tags": [
+                        "friendly",
+                        "organized"
+                      ],
+                      "created_at": "2026-10-14 21:37:05",
+                      "updated_at": "2026-10-14 21:37:05"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier or pagination",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "classId must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Account is inactive"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The class does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Class not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/packages": {
+      "get": {
+        "tags": [
+          "Packages"
+        ],
+        "summary": "List packages",
+        "description": "Catalog of class packages.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of packages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Package"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "name": "Starter",
+                      "class_quantity": 5,
+                      "price": "120000.00",
+                      "description": "Five classes"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid pagination",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "limit must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Account is inactive"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Packages"
+        ],
+        "summary": "Create a package",
+        "description": "Administrator only.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PackageInput"
+              },
+              "example": {
+                "name": "Starter",
+                "classQuantity": 5,
+                "price": 120000,
+                "description": "Five classes"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Package created",
+            "headers": {
+              "Location": {
+                "description": "URI of the new resource",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Package"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "name": "Starter",
+                    "class_quantity": 5,
+                    "price": "120000.00",
+                    "description": "Five classes"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing field, unknown field or invalid value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "classQuantity is required"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Administrator access is required"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/packages/{id}": {
+      "get": {
+        "tags": [
+          "Packages"
+        ],
+        "summary": "Get a package",
+        "description": "Returns one package.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Package found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Package"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "name": "Starter",
+                    "class_quantity": 5,
+                    "price": "120000.00",
+                    "description": "Five classes"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "id must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Account is inactive"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The package does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Package not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Packages"
+        ],
+        "summary": "Update a package",
+        "description": "Administrator only. Partial update. A package that was already purchased cannot be changed, so the purchase history keeps its original data.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PackageUpdate"
+              },
+              "example": {
+                "price": 125000
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Package updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Package"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "name": "Starter",
+                    "class_quantity": 5,
+                    "price": "125000.00",
+                    "description": "Five classes"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty body, unknown field or invalid value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "price has an invalid value or decimal precision"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Administrator access is required"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The package does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Package not found"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The package was already purchased",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "A purchased package cannot be changed"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Packages"
+        ],
+        "summary": "Delete a package",
+        "description": "Administrator only. A package that was already purchased cannot be deleted.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted. The response has no body"
+          },
+          "400": {
+            "description": "Invalid identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "id must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Administrator access is required"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The package does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Package not found"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The package was already purchased",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "A purchased package cannot be deleted"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchases": {
+      "post": {
+        "tags": [
+          "Purchases"
+        ],
+        "summary": "Buy a package",
+        "description": "Client only. The buyer is the authenticated user and the paid price is taken from the package, so the client cannot send its own price.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseInput"
+              },
+              "example": {
+                "packageId": 1
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Purchase registered",
+            "headers": {
+              "Location": {
+                "description": "URI of the new resource",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Purchase"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "user_id": 2,
+                    "package_id": 1,
+                    "purchased_at": "2026-10-14 21:37:05",
+                    "paid_price": "120000.00",
+                    "buyer_name": "Demo Client",
+                    "buyer_email": "client@fitpulse.example",
+                    "package_name": "Starter",
+                    "class_quantity": 5
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing field, unknown field or invalid value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Unknown field: paidPrice"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Client access is required"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The package does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Package not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Purchases"
+        ],
+        "summary": "List all purchases",
+        "description": "Administrator only. Newest first.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of purchases",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Purchase"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "user_id": 2,
+                      "package_id": 1,
+                      "purchased_at": "2026-10-14 21:37:05",
+                      "paid_price": "120000.00",
+                      "buyer_name": "Demo Client",
+                      "buyer_email": "client@fitpulse.example",
+                      "package_name": "Starter",
+                      "class_quantity": 5
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid pagination",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "limit cannot exceed 1000"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Administrator access is required"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchases/{id}": {
+      "get": {
+        "tags": [
+          "Purchases"
+        ],
+        "summary": "Get a purchase",
+        "description": "A client can only read its own purchases; an administrator can read any purchase.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Purchase"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "user_id": 2,
+                    "package_id": 1,
+                    "purchased_at": "2026-10-14 21:37:05",
+                    "paid_price": "120000.00",
+                    "buyer_name": "Demo Client",
+                    "buyer_email": "client@fitpulse.example",
+                    "package_name": "Starter",
+                    "class_quantity": 5
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "id must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Access denied"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The purchase does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Purchase not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reservations": {
+      "post": {
+        "tags": [
+          "Reservations"
+        ],
+        "summary": "Reserve a class",
+        "description": "Client only. The class must not have started, must have free spots and the user cannot reserve the same class twice.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReservationInput"
+              },
+              "example": {
+                "classId": 1
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Reservation created",
+            "headers": {
+              "Location": {
+                "description": "URI of the new resource",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Reservation"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "user_id": 2,
+                    "class_id": 1,
+                    "created_at": "2026-10-14 21:37:05",
+                    "status": "reserved",
+                    "class_name": "Future Yoga",
+                    "category": "yoga",
+                    "starts_at": "2026-10-16 21:37:05",
+                    "ends_at": "2026-10-16 22:37:05"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing field, unknown field or invalid value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "classId is required"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Client access is required"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The class does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Class not found"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Class started, class full or duplicate reservation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "The class is already reserved by this user"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reservations/{id}": {
+      "get": {
+        "tags": [
+          "Reservations"
+        ],
+        "summary": "Get a reservation",
+        "description": "A client can only read its own reservations; an administrator can read any.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reservation found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Reservation"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "user_id": 2,
+                    "class_id": 1,
+                    "created_at": "2026-10-14 21:37:05",
+                    "status": "reserved",
+                    "class_name": "Future Yoga",
+                    "category": "yoga",
+                    "starts_at": "2026-10-16 21:37:05",
+                    "ends_at": "2026-10-16 22:37:05"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "id must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Access denied"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The reservation does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Reservation not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reservations/{id}/attendance": {
+      "patch": {
+        "tags": [
+          "Reservations"
+        ],
+        "summary": "Record attendance",
+        "description": "Administrator only. Only allowed after the class has ended. Once recorded as attended or no_show, the value cannot be changed to the other one.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttendanceInput"
+              },
+              "example": {
+                "status": "attended"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attendance recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Reservation"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "user_id": 2,
+                    "class_id": 1,
+                    "created_at": "2026-10-14 21:37:05",
+                    "status": "attended",
+                    "class_name": "Future Yoga",
+                    "category": "yoga",
+                    "starts_at": "2026-10-16 21:37:05",
+                    "ends_at": "2026-10-16 22:37:05"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "status must be one of: attended, no_show"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Administrator access is required"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The reservation does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Reservation not found"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The class has not ended or attendance was already recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "The class has not ended"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reviews": {
+      "post": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Review a class",
+        "description": "Client only. The user must have attended the class and can review it only once. comment, intensity and tags are optional; tags are stored in lowercase.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewInput"
+              },
+              "example": {
+                "classId": 3,
+                "rating": 5,
+                "comment": "Clear instructions",
+                "intensity": "moderate",
+                "tags": [
+                  "friendly",
+                  "organized"
+                ]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Review created",
+            "headers": {
+              "Location": {
+                "description": "URI of the new resource",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Review"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "user_id": 2,
+                    "class_id": 3,
+                    "rating": 5,
+                    "comment": "Clear instructions",
+                    "intensity": "moderate",
+                    "tags": [
+                      "friendly",
+                      "organized"
+                    ],
+                    "created_at": "2026-10-14 21:37:05",
+                    "updated_at": "2026-10-14 21:37:05"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing field, unknown field or invalid value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "rating must be an integer between 1 and 5"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Client access is required"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The class does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Class not found"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Class not attended or already reviewed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Only classes attended by this user can be reviewed"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reviews/{id}": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Get a review",
+        "description": "Returns one review.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Review"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "user_id": 2,
+                    "class_id": 3,
+                    "rating": 5,
+                    "comment": "Clear instructions",
+                    "intensity": "moderate",
+                    "tags": [
+                      "friendly",
+                      "organized"
+                    ],
+                    "created_at": "2026-10-14 21:37:05",
+                    "updated_at": "2026-10-14 21:37:05"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "id must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Account is inactive"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The review does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Review not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Update a review",
+        "description": "Client only, author of the review. Partial update: omitted fields keep their value. The reviewed class cannot be changed.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewUpdate"
+              },
+              "example": {
+                "tags": []
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Review"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "user_id": 2,
+                    "class_id": 3,
+                    "rating": 5,
+                    "comment": "Clear instructions",
+                    "intensity": "moderate",
+                    "tags": [],
+                    "created_at": "2026-10-14 21:37:05",
+                    "updated_at": "2026-10-14 21:37:05"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty body, unknown field or invalid value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "tags cannot contain duplicates"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Access denied"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The review does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Review not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Delete a review",
+        "description": "Client only, author of the review. The attendance of the class is kept.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted. The response has no body"
+          },
+          "400": {
+            "description": "Invalid identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "id must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Access denied"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The review does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Review not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/personal-records/{id}": {
+      "get": {
+        "tags": [
+          "Personal records"
+        ],
+        "summary": "Get a personal record",
+        "description": "A client can only read its own records; an administrator can read any record.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Personal record found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PersonalRecord"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "user_id": 2,
+                    "exercise": "Deadlift",
+                    "record_type": "maximum_weight",
+                    "value": "80.000",
+                    "unit": "kg",
+                    "achieved_on": "2026-10-14"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "id must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Access denied"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The personal record does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Personal record not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Personal records"
+        ],
+        "summary": "Update a personal record",
+        "description": "Client only, owner of the record. Partial update: omitted fields keep their value.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonalRecordUpdate"
+              },
+              "example": {
+                "value": 85
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Personal record updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PersonalRecord"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "user_id": 2,
+                    "exercise": "Deadlift",
+                    "record_type": "maximum_weight",
+                    "value": "85.000",
+                    "unit": "kg",
+                    "achieved_on": "2026-10-14"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty body, unknown field or invalid value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "achievedOn is not a valid date"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Access denied"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The personal record does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Personal record not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Personal records"
+        ],
+        "summary": "Delete a personal record",
+        "description": "Client only, owner of the record.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted. The response has no body"
+          },
+          "400": {
+            "description": "Invalid identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "id must be a positive integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Access denied"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The personal record does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Personal record not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/sales": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Daily sales report",
+        "description": "Administrator only. Number of purchases and total paid on a business day (Bogota time), grouped by package. Without date it uses the current day.",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "description": "Business day (YYYY-MM-DD). Defaults to today",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2026-10-14"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sales of the day",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/SalesReport"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "date": "2026-10-14",
+                    "timeZone": "America/Bogota",
+                    "purchaseCount": 1,
+                    "totalPaid": "120000.00",
+                    "packages": [
+                      {
+                        "packageId": 1,
+                        "purchaseCount": 1,
+                        "totalPaid": "120000.00"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid date or unknown query parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "date is not a valid date"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Inactive account, wrong role or a resource owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "message": "Administrator access is required"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "parameters": {
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Resource identifier",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "example": 1
+      },
+      "userId": {
+        "name": "userId",
+        "in": "path",
+        "required": true,
+        "description": "User identifier",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "example": 1
+      },
+      "classId": {
+        "name": "classId",
+        "in": "path",
+        "required": true,
+        "description": "Class identifier",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "example": 1
+      },
+      "limit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "description": "Maximum number of items (default 100)",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 100
+        }
+      },
+      "offset": {
+        "name": "offset",
+        "in": "query",
+        "required": false,
+        "description": "Number of items to skip (default 0)",
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Missing, invalid or expired token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": {
+                "message": "A Bearer token is required"
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Credentials": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 200
+          }
+        }
+      },
+      "UserInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 45,
+            "example": "Demo Client"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 200,
+            "description": "Stored as plain text in this course stage"
+          }
+        }
+      },
+      "StatusInput": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "client",
+              "admin"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "registered_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+            "description": "UTC date and time (YYYY-MM-DD HH:MM:SS)",
+            "example": "2026-10-14 21:37:05"
+          }
+        }
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "JWT to send as Bearer token"
+          },
+          "tokenType": {
+            "type": "string",
+            "example": "Bearer"
+          },
+          "expiresIn": {
+            "type": "string",
+            "example": "1h"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "ClassInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "category",
+          "instructorName",
+          "startsAt",
+          "endsAt",
+          "capacity",
+          "price",
+          "description"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 45,
+            "example": "Future Yoga"
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 45,
+            "example": "yoga"
+          },
+          "instructorName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 45,
+            "example": "Demo Coach"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 with seconds and time zone",
+            "example": "2026-12-01T13:00:00Z"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 with seconds and time zone",
+            "example": "2026-12-01T14:00:00Z"
+          },
+          "capacity": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 3
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 99999999.99,
+            "multipleOf": 0.01,
+            "example": 25000
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000,
+            "example": "Mobility and breathing"
+          }
+        }
+      },
+      "ClassUpdate": {
+        "type": "object",
+        "minProperties": 1,
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 45,
+            "example": "Future Yoga"
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 45,
+            "example": "yoga"
+          },
+          "instructorName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 45,
+            "example": "Demo Coach"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 with seconds and time zone",
+            "example": "2026-12-01T13:00:00Z"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 with seconds and time zone",
+            "example": "2026-12-01T14:00:00Z"
+          },
+          "capacity": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 3
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 99999999.99,
+            "multipleOf": 0.01,
+            "example": 25000
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000,
+            "example": "Mobility and breathing"
+          }
+        }
+      },
+      "Class": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "instructor_name": {
+            "type": "string"
+          },
+          "starts_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+            "description": "UTC date and time (YYYY-MM-DD HH:MM:SS)",
+            "example": "2026-10-16 21:37:05"
+          },
+          "ends_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+            "description": "UTC date and time (YYYY-MM-DD HH:MM:SS)",
+            "example": "2026-10-16 22:37:05"
+          },
+          "capacity": {
+            "type": "integer"
+          },
+          "price": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d{2}$",
+            "example": "25000.00"
+          },
+          "description": {
+            "type": "string"
+          },
+          "available_spots": {
+            "type": "integer"
+          }
+        }
+      },
+      "PackageInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "classQuantity",
+          "price",
+          "description"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 45,
+            "example": "Starter"
+          },
+          "classQuantity": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 5
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 99999999.99,
+            "multipleOf": 0.01,
+            "example": 120000
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000,
+            "example": "Five classes"
+          }
+        }
+      },
+      "PackageUpdate": {
+        "type": "object",
+        "minProperties": 1,
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 45,
+            "example": "Starter"
+          },
+          "classQuantity": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 5
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 99999999.99,
+            "multipleOf": 0.01,
+            "example": 120000
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000,
+            "example": "Five classes"
+          }
+        }
+      },
+      "Package": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "class_quantity": {
+            "type": "integer"
+          },
+          "price": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d{2}$",
+            "example": "120000.00"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "PurchaseInput": {
+        "type": "object",
+        "required": [
+          "packageId"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "packageId": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "Purchase": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "integer"
+          },
+          "package_id": {
+            "type": "integer"
+          },
+          "purchased_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+            "description": "UTC date and time (YYYY-MM-DD HH:MM:SS)",
+            "example": "2026-10-14 21:37:05"
+          },
+          "paid_price": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d{2}$",
+            "example": "120000.00"
+          },
+          "buyer_name": {
+            "type": "string"
+          },
+          "buyer_email": {
+            "type": "string"
+          },
+          "package_name": {
+            "type": "string"
+          },
+          "class_quantity": {
+            "type": "integer"
+          }
+        }
+      },
+      "ReservationInput": {
+        "type": "object",
+        "required": [
+          "classId"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "classId": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "AttendanceInput": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "attended",
+              "no_show"
+            ]
+          }
+        }
+      },
+      "Reservation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "integer"
+          },
+          "class_id": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+            "description": "UTC date and time (YYYY-MM-DD HH:MM:SS)",
+            "example": "2026-10-14 21:37:05"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "reserved",
+              "attended",
+              "no_show"
+            ]
+          },
+          "class_name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "starts_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+            "description": "UTC date and time (YYYY-MM-DD HH:MM:SS)",
+            "example": "2026-10-16 21:37:05"
+          },
+          "ends_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+            "description": "UTC date and time (YYYY-MM-DD HH:MM:SS)",
+            "example": "2026-10-16 22:37:05"
+          }
+        }
+      },
+      "ReviewInput": {
+        "type": "object",
+        "required": [
+          "classId",
+          "rating"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "classId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 2000,
+            "nullable": true,
+            "example": "Clear instructions"
+          },
+          "intensity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "moderate",
+              "high"
+            ],
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "maxItems": 10,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "example": [
+              "friendly",
+              "organized"
+            ]
+          }
+        }
+      },
+      "ReviewUpdate": {
+        "type": "object",
+        "minProperties": 1,
+        "additionalProperties": false,
+        "properties": {
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 2000,
+            "nullable": true,
+            "example": "Clear instructions"
+          },
+          "intensity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "moderate",
+              "high"
+            ],
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "maxItems": 10,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "example": [
+              "friendly",
+              "organized"
+            ]
+          }
+        }
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "integer"
+          },
+          "class_id": {
+            "type": "integer"
+          },
+          "rating": {
+            "type": "integer"
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true
+          },
+          "intensity": {
+            "type": "string",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+            "description": "UTC date and time (YYYY-MM-DD HH:MM:SS)",
+            "example": "2026-10-14 21:37:05"
+          },
+          "updated_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+            "description": "UTC date and time (YYYY-MM-DD HH:MM:SS)",
+            "example": "2026-10-14 21:37:05"
+          }
+        }
+      },
+      "PersonalRecordInput": {
+        "type": "object",
+        "required": [
+          "exercise",
+          "recordType",
+          "value",
+          "unit",
+          "achievedOn"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "exercise": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "example": "Deadlift"
+          },
+          "recordType": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 45,
+            "example": "maximum_weight"
+          },
+          "value": {
+            "type": "number",
+            "minimum": 0.001,
+            "maximum": 999999999.999,
+            "multipleOf": 0.001,
+            "example": 80
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 45,
+            "example": "kg"
+          },
+          "achievedOn": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-10-14",
+            "description": "Cannot be a future date"
+          }
+        }
+      },
+      "PersonalRecordUpdate": {
+        "type": "object",
+        "minProperties": 1,
+        "additionalProperties": false,
+        "properties": {
+          "exercise": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "example": "Deadlift"
+          },
+          "recordType": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 45,
+            "example": "maximum_weight"
+          },
+          "value": {
+            "type": "number",
+            "minimum": 0.001,
+            "maximum": 999999999.999,
+            "multipleOf": 0.001,
+            "example": 80
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 45,
+            "example": "kg"
+          },
+          "achievedOn": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-10-14",
+            "description": "Cannot be a future date"
+          }
+        }
+      },
+      "PersonalRecord": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "integer"
+          },
+          "exercise": {
+            "type": "string"
+          },
+          "record_type": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string",
+            "example": "80.000"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "achieved_on": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "Progress": {
+        "type": "object",
+        "properties": {
+          "weeklyStreak": {
+            "type": "integer",
+            "description": "Consecutive weeks with attendance"
+          },
+          "totalAttended": {
+            "type": "integer"
+          },
+          "categoryTotals": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "weekStartsOn": {
+            "type": "string"
+          }
+        }
+      },
+      "SalesReport": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "purchaseCount": {
+            "type": "integer"
+          },
+          "totalPaid": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d{2}$",
+            "example": "25000.00"
+          },
+          "packages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "packageId": {
+                  "type": "integer"
+                },
+                "purchaseCount": {
+                  "type": "integer"
+                },
+                "totalPaid": {
+                  "type": "string",
+                  "pattern": "^\\d+\\.\\d{2}$",
+                  "example": "25000.00"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
