@@ -1,6 +1,7 @@
 const repository = require('../repositories/user-repository');
 const check = require('../utils/validation');
 const { fail, found, allowOwner } = require('../utils/errors');
+const { hashPassword } = require('../utils/passwords');
 
 function credentials(body, registration = false) {
   const allowed = registration ? ['name', 'email', 'password'] : ['email', 'password'];
@@ -17,7 +18,9 @@ function credentials(body, registration = false) {
 }
 
 async function register(body) {
-  return repository.create(credentials(body, true));
+  const data = credentials(body, true);
+  data.password = await hashPassword(data.password);
+  return repository.create(data);
 }
 
 async function get(id, user) {

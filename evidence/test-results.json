@@ -1,9 +1,15 @@
 {
   "summary": {
     "passed": true,
-    "assertions": 274,
-    "httpCases": 115,
+    "assertions": 299,
+    "httpCases": 123,
     "coverage": [
+      {
+        "method": "post",
+        "route": "/sessions",
+        "success": true,
+        "error": true
+      },
       {
         "method": "post",
         "route": "/users",
@@ -55,12 +61,6 @@
       {
         "method": "get",
         "route": "/users/{userId}/progress",
-        "success": true,
-        "error": true
-      },
-      {
-        "method": "post",
-        "route": "/sessions",
         "success": true,
         "error": true
       },
@@ -215,46 +215,94 @@
         "error": true
       }
     ],
-    "mysqlVersion": "8.0.46-0ubuntu0.24.04.3",
+    "mysqlVersion": "8.4.13",
     "catalogLoad": {
       "concurrentRequests": 50,
-      "p95Milliseconds": 108.02833499999997,
+      "p95Milliseconds": 111.95524999999998,
       "passed": true
     },
     "personalLoad": {
       "concurrentRequests": 50,
-      "p95Milliseconds": 62.907493000000045,
+      "p95Milliseconds": 72.27461900000003,
       "passed": true
     },
-    "executedAt": "2026-10-14T21:37:06.336Z",
+    "executedAt": "2026-11-15T03:45:35.295Z",
     "fixtureNote": "Disposable synthetic data in TEST_DB_NAME; no production database is reset."
   },
   "cases": [
     {
-      "label": "Administrator session",
+      "label": "Plain-text storage cannot authenticate before migration",
       "method": "POST",
       "route": "/sessions",
       "requestBody": {
-        "email": "admin1792013825568@fitpulse.example",
+        "email": "legacy1794714334076@fitpulse.example",
+        "password": "[redacted]"
+      },
+      "authenticated": false,
+      "expectedStatus": 401,
+      "status": 401,
+      "passed": true,
+      "milliseconds": 25.944121000000052,
+      "responseBody": {
+        "error": {
+          "message": "Invalid credentials"
+        }
+      }
+    },
+    {
+      "label": "Migrated client can log in with the original password",
+      "method": "POST",
+      "route": "/sessions",
+      "requestBody": {
+        "email": "legacy1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 31.09856400000001,
+      "milliseconds": 31.597925999999973,
       "responseBody": {
         "data": {
           "accessToken": "[redacted]",
           "tokenType": "Bearer",
           "expiresIn": "1h",
           "user": {
-            "id": 1,
+            "id": 22,
+            "name": "Legacy Client",
+            "email": "legacy1794714334076@fitpulse.example",
+            "role": "client",
+            "status": "active",
+            "registered_at": "2026-11-15 03:45:34"
+          }
+        }
+      }
+    },
+    {
+      "label": "Administrator session",
+      "method": "POST",
+      "route": "/sessions",
+      "requestBody": {
+        "email": "admin1794714334076@fitpulse.example",
+        "password": "[redacted]"
+      },
+      "authenticated": false,
+      "expectedStatus": 201,
+      "status": 201,
+      "passed": true,
+      "milliseconds": 35.793837999999994,
+      "responseBody": {
+        "data": {
+          "accessToken": "[redacted]",
+          "tokenType": "Bearer",
+          "expiresIn": "1h",
+          "user": {
+            "id": 21,
             "name": "Demo Admin",
-            "email": "admin1792013825568@fitpulse.example",
+            "email": "admin1794714334076@fitpulse.example",
             "role": "admin",
             "status": "active",
-            "registered_at": "2026-10-14 21:37:05"
+            "registered_at": "2026-11-15 03:45:34"
           }
         }
       }
@@ -264,14 +312,14 @@
       "method": "POST",
       "route": "/sessions",
       "requestBody": {
-        "email": "admin1792013825568@fitpulse.example",
+        "email": "admin1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 401,
       "status": 401,
       "passed": true,
-      "milliseconds": 5.944556999999975,
+      "milliseconds": 40.823140999999964,
       "responseBody": {
         "error": {
           "message": "Invalid credentials"
@@ -284,22 +332,22 @@
       "route": "/users",
       "requestBody": {
         "name": "Demo Client",
-        "email": "client1792013825568@fitpulse.example",
+        "email": "client1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 8.683429999999987,
+      "milliseconds": 23.101809000000003,
       "responseBody": {
         "data": {
-          "id": 2,
+          "id": 23,
           "name": "Demo Client",
-          "email": "client1792013825568@fitpulse.example",
+          "email": "client1794714334076@fitpulse.example",
           "role": "client",
           "status": "active",
-          "registered_at": "2026-10-14 21:37:05"
+          "registered_at": "2026-11-15 03:45:34"
         }
       }
     },
@@ -316,7 +364,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 2.693345000000022,
+      "milliseconds": 7.580408000000034,
       "responseBody": {
         "error": {
           "message": "Invalid email"
@@ -329,14 +377,14 @@
       "route": "/users",
       "requestBody": {
         "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "email": "long1792013825568@fitpulse.example",
+        "email": "long1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 3.3195460000000026,
+      "milliseconds": 5.531237000000033,
       "responseBody": {
         "error": {
           "message": "name must be nonempty text of at most 45 characters"
@@ -349,14 +397,14 @@
       "route": "/users",
       "requestBody": {
         "name": "Demo",
-        "email": "client1792013825568@fitpulse.example",
+        "email": "client1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 409,
       "status": 409,
       "passed": true,
-      "milliseconds": 3.9538670000000025,
+      "milliseconds": 23.12303099999997,
       "responseBody": {
         "error": {
           "message": "The resource already exists"
@@ -377,7 +425,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 2.57038,
+      "milliseconds": 3.7445559999999887,
       "responseBody": {
         "error": {
           "message": "Unknown field: role"
@@ -389,27 +437,46 @@
       "method": "POST",
       "route": "/sessions",
       "requestBody": {
-        "email": "client1792013825568@fitpulse.example",
+        "email": "client1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 4.844865999999968,
+      "milliseconds": 21.929430000000025,
       "responseBody": {
         "data": {
           "accessToken": "[redacted]",
           "tokenType": "Bearer",
           "expiresIn": "1h",
           "user": {
-            "id": 2,
+            "id": 23,
             "name": "Demo Client",
-            "email": "client1792013825568@fitpulse.example",
+            "email": "client1794714334076@fitpulse.example",
             "role": "client",
             "status": "active",
-            "registered_at": "2026-10-14 21:37:05"
+            "registered_at": "2026-11-15 03:45:34"
           }
+        }
+      }
+    },
+    {
+      "label": "The stored hash itself cannot authenticate",
+      "method": "POST",
+      "route": "/sessions",
+      "requestBody": {
+        "email": "client1794714334076@fitpulse.example",
+        "password": "[redacted]"
+      },
+      "authenticated": false,
+      "expectedStatus": 401,
+      "status": 401,
+      "passed": true,
+      "milliseconds": 23.435834999999997,
+      "responseBody": {
+        "error": {
+          "message": "Invalid credentials"
         }
       }
     },
@@ -422,24 +489,128 @@
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 6.220773000000008,
+      "milliseconds": 4.644612000000052,
       "responseBody": {
         "data": [
           {
             "id": 1,
             "name": "Demo Admin",
-            "email": "admin1792013825568@fitpulse.example",
+            "email": "admin1794711436052@fitpulse.example",
             "role": "admin",
             "status": "active",
-            "registered_at": "2026-10-14 21:37:05"
+            "registered_at": "2026-11-15 02:57:16"
           },
           {
             "id": 2,
-            "name": "Demo Client",
-            "email": "client1792013825568@fitpulse.example",
+            "name": "Legacy Client",
+            "email": "legacy1794711436052@fitpulse.example",
             "role": "client",
             "status": "active",
-            "registered_at": "2026-10-14 21:37:05"
+            "registered_at": "2026-11-15 02:57:16"
+          },
+          {
+            "id": 3,
+            "name": "Demo Client",
+            "email": "client1794711436052@fitpulse.example",
+            "role": "client",
+            "status": "active",
+            "registered_at": "2026-11-15 02:57:16"
+          },
+          {
+            "id": 5,
+            "name": "Other Client",
+            "email": "other1794711436052@fitpulse.example",
+            "role": "client",
+            "status": "active",
+            "registered_at": "2026-11-15 02:57:16"
+          },
+          {
+            "id": 6,
+            "name": "Local Test Admin",
+            "email": "admin@fitpulse.example",
+            "role": "admin",
+            "status": "active",
+            "registered_at": "2026-11-15 02:57:17"
+          },
+          {
+            "id": 7,
+            "name": "Local Test Client",
+            "email": "client@fitpulse.example",
+            "role": "client",
+            "status": "active",
+            "registered_at": "2026-11-15 02:57:18"
+          },
+          {
+            "id": 10,
+            "name": "Postman Client",
+            "email": "client1794711440771@fitpulse.example",
+            "role": "client",
+            "status": "inactive",
+            "registered_at": "2026-11-15 02:57:20"
+          },
+          {
+            "id": 12,
+            "name": "Demo Admin",
+            "email": "admin1794712142914@fitpulse.example",
+            "role": "admin",
+            "status": "active",
+            "registered_at": "2026-11-15 03:09:03"
+          },
+          {
+            "id": 13,
+            "name": "Legacy Client",
+            "email": "legacy1794712142914@fitpulse.example",
+            "role": "client",
+            "status": "active",
+            "registered_at": "2026-11-15 03:09:03"
+          },
+          {
+            "id": 14,
+            "name": "Demo Client",
+            "email": "client1794712142914@fitpulse.example",
+            "role": "client",
+            "status": "active",
+            "registered_at": "2026-11-15 03:09:03"
+          },
+          {
+            "id": 16,
+            "name": "Other Client",
+            "email": "other1794712142914@fitpulse.example",
+            "role": "client",
+            "status": "active",
+            "registered_at": "2026-11-15 03:09:03"
+          },
+          {
+            "id": 19,
+            "name": "Postman Client",
+            "email": "client1794712146816@fitpulse.example",
+            "role": "client",
+            "status": "inactive",
+            "registered_at": "2026-11-15 03:09:06"
+          },
+          {
+            "id": 21,
+            "name": "Demo Admin",
+            "email": "admin1794714334076@fitpulse.example",
+            "role": "admin",
+            "status": "active",
+            "registered_at": "2026-11-15 03:45:34"
+          },
+          {
+            "id": 22,
+            "name": "Legacy Client",
+            "email": "legacy1794714334076@fitpulse.example",
+            "role": "client",
+            "status": "active",
+            "registered_at": "2026-11-15 03:45:34"
+          },
+          {
+            "id": 23,
+            "name": "Demo Client",
+            "email": "client1794714334076@fitpulse.example",
+            "role": "client",
+            "status": "active",
+            "registered_at": "2026-11-15 03:45:34"
           }
         ]
       }
@@ -453,7 +624,7 @@
       "expectedStatus": 403,
       "status": 403,
       "passed": true,
-      "milliseconds": 3.6005779999999845,
+      "milliseconds": 1.8130899999999883,
       "responseBody": {
         "error": {
           "message": "Administrator access is required"
@@ -463,21 +634,21 @@
     {
       "label": "Own profile",
       "method": "GET",
-      "route": "/users/2",
+      "route": "/users/23",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 4.553327000000024,
+      "milliseconds": 2.3869019999999637,
       "responseBody": {
         "data": {
-          "id": 2,
+          "id": 23,
           "name": "Demo Client",
-          "email": "client1792013825568@fitpulse.example",
+          "email": "client1794714334076@fitpulse.example",
           "role": "client",
           "status": "active",
-          "registered_at": "2026-10-14 21:37:05"
+          "registered_at": "2026-11-15 03:45:34"
         }
       }
     },
@@ -490,7 +661,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 2.59129200000001,
+      "milliseconds": 1.0293970000000172,
       "responseBody": {
         "error": {
           "message": "id must be a positive integer"
@@ -500,7 +671,7 @@
     {
       "label": "Deactivate client",
       "method": "PATCH",
-      "route": "/users/2/status",
+      "route": "/users/23/status",
       "requestBody": {
         "status": "inactive"
       },
@@ -508,15 +679,15 @@
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 6.106820999999968,
+      "milliseconds": 4.643790999999965,
       "responseBody": {
         "data": {
-          "id": 2,
+          "id": 23,
           "name": "Demo Client",
-          "email": "client1792013825568@fitpulse.example",
+          "email": "client1794714334076@fitpulse.example",
           "role": "client",
           "status": "inactive",
-          "registered_at": "2026-10-14 21:37:05"
+          "registered_at": "2026-11-15 03:45:34"
         }
       }
     },
@@ -529,7 +700,7 @@
       "expectedStatus": 403,
       "status": 403,
       "passed": true,
-      "milliseconds": 3.087647000000004,
+      "milliseconds": 1.703828000000044,
       "responseBody": {
         "error": {
           "message": "Account is inactive"
@@ -539,7 +710,7 @@
     {
       "label": "Client cannot reactivate itself",
       "method": "PATCH",
-      "route": "/users/2/status",
+      "route": "/users/23/status",
       "requestBody": {
         "status": "active"
       },
@@ -547,7 +718,7 @@
       "expectedStatus": 403,
       "status": 403,
       "passed": true,
-      "milliseconds": 2.976600000000019,
+      "milliseconds": 2.0189149999999927,
       "responseBody": {
         "error": {
           "message": "Account is inactive"
@@ -557,7 +728,7 @@
     {
       "label": "Reactivate client",
       "method": "PATCH",
-      "route": "/users/2/status",
+      "route": "/users/23/status",
       "requestBody": {
         "status": "active"
       },
@@ -565,15 +736,15 @@
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 4.524069999999995,
+      "milliseconds": 3.875960999999961,
       "responseBody": {
         "data": {
-          "id": 2,
+          "id": 23,
           "name": "Demo Client",
-          "email": "client1792013825568@fitpulse.example",
+          "email": "client1794714334076@fitpulse.example",
           "role": "client",
           "status": "active",
-          "registered_at": "2026-10-14 21:37:05"
+          "registered_at": "2026-11-15 03:45:34"
         }
       }
     },
@@ -585,8 +756,8 @@
         "name": "Future Yoga",
         "category": "yoga",
         "instructorName": "Demo Coach",
-        "startsAt": "2026-10-16T21:37:05.753Z",
-        "endsAt": "2026-10-16T22:37:05.753Z",
+        "startsAt": "2026-11-17T03:45:34.593Z",
+        "endsAt": "2026-11-17T04:45:34.593Z",
         "capacity": 3,
         "price": 25000,
         "description": "Mobility and breathing"
@@ -595,15 +766,15 @@
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 7.436278000000016,
+      "milliseconds": 6.7360760000000255,
       "responseBody": {
         "data": {
-          "id": 1,
+          "id": 16,
           "name": "Future Yoga",
           "category": "yoga",
           "instructor_name": "Demo Coach",
-          "starts_at": "2026-10-16 21:37:05",
-          "ends_at": "2026-10-16 22:37:05",
+          "starts_at": "2026-11-17 03:45:34",
+          "ends_at": "2026-11-17 04:45:34",
           "capacity": 3,
           "price": "25000.00",
           "description": "Mobility and breathing",
@@ -619,8 +790,8 @@
         "name": "Forbidden",
         "category": "yoga",
         "instructorName": "Demo Coach",
-        "startsAt": "2026-10-16T21:37:05.760Z",
-        "endsAt": "2026-10-16T22:37:05.760Z",
+        "startsAt": "2026-11-17T03:45:34.600Z",
+        "endsAt": "2026-11-17T04:45:34.600Z",
         "capacity": 3,
         "price": 25000,
         "description": "Mobility and breathing"
@@ -629,7 +800,7 @@
       "expectedStatus": 403,
       "status": 403,
       "passed": true,
-      "milliseconds": 3.2245920000000297,
+      "milliseconds": 2.3300479999999197,
       "responseBody": {
         "error": {
           "message": "Administrator access is required"
@@ -644,8 +815,8 @@
         "name": "Invalid",
         "category": "yoga",
         "instructorName": "Demo Coach",
-        "startsAt": "2026-10-16T21:37:05.763Z",
-        "endsAt": "2026-10-16T22:37:05.763Z",
+        "startsAt": "2026-11-17T03:45:34.602Z",
+        "endsAt": "2026-11-17T04:45:34.602Z",
         "capacity": "3",
         "price": 25000,
         "description": "Mobility and breathing"
@@ -654,7 +825,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 2.8600549999999885,
+      "milliseconds": 2.0251950000000534,
       "responseBody": {
         "error": {
           "message": "capacity must be an integer between 1 and 2147483647"
@@ -669,8 +840,8 @@
         "name": "Long instructor",
         "category": "yoga",
         "instructorName": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "startsAt": "2026-10-16T21:37:05.766Z",
-        "endsAt": "2026-10-16T22:37:05.766Z",
+        "startsAt": "2026-11-17T03:45:34.604Z",
+        "endsAt": "2026-11-17T04:45:34.604Z",
         "capacity": 3,
         "price": 25000,
         "description": "Mobility and breathing"
@@ -679,7 +850,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 2.8392450000000053,
+      "milliseconds": 1.7817740000000413,
       "responseBody": {
         "error": {
           "message": "instructorName must be nonempty text of at most 45 characters"
@@ -695,7 +866,7 @@
         "category": "yoga",
         "instructorName": "Demo Coach",
         "startsAt": "2030-01-01T24:00:00Z",
-        "endsAt": "2026-10-16T22:37:05.769Z",
+        "endsAt": "2026-11-17T04:45:34.606Z",
         "capacity": 3,
         "price": 25000,
         "description": "Mobility and breathing"
@@ -704,7 +875,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 3.251872999999989,
+      "milliseconds": 1.8172759999999926,
       "responseBody": {
         "error": {
           "message": "startsAt contains an invalid time"
@@ -720,16 +891,148 @@
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 3.7560660000000325,
+      "milliseconds": 2.8883349999999837,
       "responseBody": {
         "data": [
+          {
+            "id": 4,
+            "name": "Past Yoga 1794711436052",
+            "category": "yoga",
+            "instructor_name": "Demo Coach",
+            "starts_at": "2026-11-01 02:57:17",
+            "ends_at": "2026-11-01 03:57:17",
+            "capacity": 20,
+            "price": "25000.00",
+            "description": "Past fixture",
+            "available_spots": 19
+          },
+          {
+            "id": 12,
+            "name": "Past Yoga 1794712142914",
+            "category": "yoga",
+            "instructor_name": "Demo Coach",
+            "starts_at": "2026-11-01 03:09:04",
+            "ends_at": "2026-11-01 04:09:04",
+            "capacity": 20,
+            "price": "25000.00",
+            "description": "Past fixture",
+            "available_spots": 19
+          },
+          {
+            "id": 3,
+            "name": "Past Yoga 1794711436052",
+            "category": "yoga",
+            "instructor_name": "Demo Coach",
+            "starts_at": "2026-11-08 02:57:17",
+            "ends_at": "2026-11-08 03:57:17",
+            "capacity": 20,
+            "price": "25000.00",
+            "description": "Past fixture",
+            "available_spots": 19
+          },
+          {
+            "id": 6,
+            "name": "Past Yoga",
+            "category": "yoga",
+            "instructor_name": "Demo Coach",
+            "starts_at": "2026-11-08 02:57:18",
+            "ends_at": "2026-11-08 03:57:18",
+            "capacity": 20,
+            "price": "25000.00",
+            "description": "Finished demo class",
+            "available_spots": 19
+          },
+          {
+            "id": 11,
+            "name": "Past Yoga 1794712142914",
+            "category": "yoga",
+            "instructor_name": "Demo Coach",
+            "starts_at": "2026-11-08 03:09:04",
+            "ends_at": "2026-11-08 04:09:04",
+            "capacity": 20,
+            "price": "25000.00",
+            "description": "Past fixture",
+            "available_spots": 19
+          },
           {
             "id": 1,
             "name": "Future Yoga",
             "category": "yoga",
             "instructor_name": "Demo Coach",
-            "starts_at": "2026-10-16 21:37:05",
-            "ends_at": "2026-10-16 22:37:05",
+            "starts_at": "2026-11-17 02:57:16",
+            "ends_at": "2026-11-17 03:57:16",
+            "capacity": 4,
+            "price": "25000.00",
+            "description": "Mobility and breathing",
+            "available_spots": 3
+          },
+          {
+            "id": 5,
+            "name": "Last Spot",
+            "category": "yoga",
+            "instructor_name": "Demo Coach",
+            "starts_at": "2026-11-17 02:57:17",
+            "ends_at": "2026-11-17 03:57:17",
+            "capacity": 1,
+            "price": "25000.00",
+            "description": "Mobility and breathing",
+            "available_spots": 0
+          },
+          {
+            "id": 7,
+            "name": "Postman Yoga",
+            "category": "yoga",
+            "instructor_name": "Demo Coach",
+            "starts_at": "2026-11-17 02:57:21",
+            "ends_at": "2026-11-17 03:57:21",
+            "capacity": 4,
+            "price": "25000.00",
+            "description": "Class created from Postman",
+            "available_spots": 3
+          },
+          {
+            "id": 9,
+            "name": "Future Yoga",
+            "category": "yoga",
+            "instructor_name": "Demo Coach",
+            "starts_at": "2026-11-17 03:09:03",
+            "ends_at": "2026-11-17 04:09:03",
+            "capacity": 4,
+            "price": "25000.00",
+            "description": "Mobility and breathing",
+            "available_spots": 3
+          },
+          {
+            "id": 13,
+            "name": "Last Spot",
+            "category": "yoga",
+            "instructor_name": "Demo Coach",
+            "starts_at": "2026-11-17 03:09:03",
+            "ends_at": "2026-11-17 04:09:03",
+            "capacity": 1,
+            "price": "25000.00",
+            "description": "Mobility and breathing",
+            "available_spots": 0
+          },
+          {
+            "id": 14,
+            "name": "Postman Yoga",
+            "category": "yoga",
+            "instructor_name": "Demo Coach",
+            "starts_at": "2026-11-17 03:09:07",
+            "ends_at": "2026-11-17 04:09:07",
+            "capacity": 4,
+            "price": "25000.00",
+            "description": "Class created from Postman",
+            "available_spots": 3
+          },
+          {
+            "id": 16,
+            "name": "Future Yoga",
+            "category": "yoga",
+            "instructor_name": "Demo Coach",
+            "starts_at": "2026-11-17 03:45:34",
+            "ends_at": "2026-11-17 04:45:34",
             "capacity": 3,
             "price": "25000.00",
             "description": "Mobility and breathing",
@@ -747,7 +1050,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 2.8623529999999846,
+      "milliseconds": 1.7778879999999617,
       "responseBody": {
         "error": {
           "message": "limit cannot exceed 1000"
@@ -757,21 +1060,21 @@
     {
       "label": "Class details",
       "method": "GET",
-      "route": "/classes/1",
+      "route": "/classes/16",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 3.238443000000018,
+      "milliseconds": 2.14497300000005,
       "responseBody": {
         "data": {
-          "id": 1,
+          "id": 16,
           "name": "Future Yoga",
           "category": "yoga",
           "instructor_name": "Demo Coach",
-          "starts_at": "2026-10-16 21:37:05",
-          "ends_at": "2026-10-16 22:37:05",
+          "starts_at": "2026-11-17 03:45:34",
+          "ends_at": "2026-11-17 04:45:34",
           "capacity": 3,
           "price": "25000.00",
           "description": "Mobility and breathing",
@@ -788,7 +1091,7 @@
       "expectedStatus": 404,
       "status": 404,
       "passed": true,
-      "milliseconds": 2.9946970000000306,
+      "milliseconds": 2.031934999999976,
       "responseBody": {
         "error": {
           "message": "Class not found"
@@ -798,7 +1101,7 @@
     {
       "label": "Update class",
       "method": "PATCH",
-      "route": "/classes/1",
+      "route": "/classes/16",
       "requestBody": {
         "capacity": 4
       },
@@ -806,15 +1109,15 @@
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 6.307842999999991,
+      "milliseconds": 7.183650000000057,
       "responseBody": {
         "data": {
-          "id": 1,
+          "id": 16,
           "name": "Future Yoga",
           "category": "yoga",
           "instructor_name": "Demo Coach",
-          "starts_at": "2026-10-16 21:37:05",
-          "ends_at": "2026-10-16 22:37:05",
+          "starts_at": "2026-11-17 03:45:34",
+          "ends_at": "2026-11-17 04:45:34",
           "capacity": 4,
           "price": "25000.00",
           "description": "Mobility and breathing",
@@ -825,7 +1128,7 @@
     {
       "label": "Invalid class update",
       "method": "PATCH",
-      "route": "/classes/1",
+      "route": "/classes/16",
       "requestBody": {
         "capacity": 0
       },
@@ -833,7 +1136,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 4.117203000000018,
+      "milliseconds": 3.1944690000000264,
       "responseBody": {
         "error": {
           "message": "capacity must be an integer between 1 and 2147483647"
@@ -848,8 +1151,8 @@
         "name": "Disposable",
         "category": "yoga",
         "instructorName": "Demo Coach",
-        "startsAt": "2026-10-16T21:37:05.796Z",
-        "endsAt": "2026-10-16T22:37:05.796Z",
+        "startsAt": "2026-11-17T03:45:34.627Z",
+        "endsAt": "2026-11-17T04:45:34.627Z",
         "capacity": 3,
         "price": 25000,
         "description": "Mobility and breathing"
@@ -858,15 +1161,15 @@
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 3.1344080000000076,
+      "milliseconds": 4.4843250000000126,
       "responseBody": {
         "data": {
-          "id": 2,
+          "id": 17,
           "name": "Disposable",
           "category": "yoga",
           "instructor_name": "Demo Coach",
-          "starts_at": "2026-10-16 21:37:05",
-          "ends_at": "2026-10-16 22:37:05",
+          "starts_at": "2026-11-17 03:45:34",
+          "ends_at": "2026-11-17 04:45:34",
           "capacity": 3,
           "price": "25000.00",
           "description": "Mobility and breathing",
@@ -877,25 +1180,25 @@
     {
       "label": "Delete class",
       "method": "DELETE",
-      "route": "/classes/2",
+      "route": "/classes/17",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 204,
       "status": 204,
       "passed": true,
-      "milliseconds": 6.339015000000018,
+      "milliseconds": 4.390875000000051,
       "responseBody": null
     },
     {
       "label": "Delete missing class",
       "method": "DELETE",
-      "route": "/classes/2",
+      "route": "/classes/17",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 404,
       "status": 404,
       "passed": true,
-      "milliseconds": 4.242456000000004,
+      "milliseconds": 2.1261349999999766,
       "responseBody": {
         "error": {
           "message": "Class not found"
@@ -916,10 +1219,10 @@
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 6.063716999999997,
+      "milliseconds": 4.681936999999948,
       "responseBody": {
         "data": {
-          "id": 1,
+          "id": 9,
           "name": "Starter",
           "class_quantity": 5,
           "price": "120000.00",
@@ -938,7 +1241,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 3.4147289999999657,
+      "milliseconds": 1.7453799999999546,
       "responseBody": {
         "error": {
           "message": "classQuantity is required"
@@ -959,7 +1262,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 3.053275000000042,
+      "milliseconds": 1.6520519999999124,
       "responseBody": {
         "error": {
           "message": "name must be nonempty text of at most 45 characters"
@@ -975,11 +1278,39 @@
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 4.486302000000023,
+      "milliseconds": 2.344649000000004,
       "responseBody": {
         "data": [
           {
             "id": 1,
+            "name": "Starter",
+            "class_quantity": 5,
+            "price": "125000.00",
+            "description": "Five classes"
+          },
+          {
+            "id": 3,
+            "name": "Postman Starter",
+            "class_quantity": 5,
+            "price": "125000.00",
+            "description": "Package created from Postman"
+          },
+          {
+            "id": 5,
+            "name": "Starter",
+            "class_quantity": 5,
+            "price": "125000.00",
+            "description": "Five classes"
+          },
+          {
+            "id": 7,
+            "name": "Postman Starter",
+            "class_quantity": 5,
+            "price": "125000.00",
+            "description": "Package created from Postman"
+          },
+          {
+            "id": 9,
             "name": "Starter",
             "class_quantity": 5,
             "price": "120000.00",
@@ -997,7 +1328,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 3.0364400000000273,
+      "milliseconds": 1.470662999999945,
       "responseBody": {
         "error": {
           "message": "limit must be a positive integer"
@@ -1007,20 +1338,109 @@
     {
       "label": "Package details",
       "method": "GET",
-      "route": "/packages/1",
+      "route": "/packages/9",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 3.6991160000000036,
+      "milliseconds": 1.9542999999999893,
       "responseBody": {
         "data": {
-          "id": 1,
+          "id": 9,
           "name": "Starter",
           "class_quantity": 5,
           "price": "120000.00",
           "description": "Five classes"
+        }
+      }
+    },
+    {
+      "label": "Client cannot create package",
+      "method": "POST",
+      "route": "/packages",
+      "requestBody": {
+        "name": "Forbidden",
+        "classQuantity": 1,
+        "price": 1,
+        "description": "Permission fixture"
+      },
+      "authenticated": true,
+      "expectedStatus": 403,
+      "status": 403,
+      "passed": true,
+      "milliseconds": 1.7501670000000331,
+      "responseBody": {
+        "error": {
+          "message": "Administrator access is required"
+        }
+      }
+    },
+    {
+      "label": "Client cannot update package",
+      "method": "PATCH",
+      "route": "/packages/9",
+      "requestBody": {
+        "price": 1
+      },
+      "authenticated": true,
+      "expectedStatus": 403,
+      "status": 403,
+      "passed": true,
+      "milliseconds": 1.7782189999999218,
+      "responseBody": {
+        "error": {
+          "message": "Administrator access is required"
+        }
+      }
+    },
+    {
+      "label": "Client cannot delete package",
+      "method": "DELETE",
+      "route": "/packages/9",
+      "requestBody": null,
+      "authenticated": true,
+      "expectedStatus": 403,
+      "status": 403,
+      "passed": true,
+      "milliseconds": 1.5312920000000076,
+      "responseBody": {
+        "error": {
+          "message": "Administrator access is required"
+        }
+      }
+    },
+    {
+      "label": "Client cannot update class",
+      "method": "PATCH",
+      "route": "/classes/16",
+      "requestBody": {
+        "capacity": 1
+      },
+      "authenticated": true,
+      "expectedStatus": 403,
+      "status": 403,
+      "passed": true,
+      "milliseconds": 1.7219149999999672,
+      "responseBody": {
+        "error": {
+          "message": "Administrator access is required"
+        }
+      }
+    },
+    {
+      "label": "Client cannot delete class",
+      "method": "DELETE",
+      "route": "/classes/16",
+      "requestBody": null,
+      "authenticated": true,
+      "expectedStatus": 403,
+      "status": 403,
+      "passed": true,
+      "milliseconds": 1.5675959999999804,
+      "responseBody": {
+        "error": {
+          "message": "Administrator access is required"
         }
       }
     },
@@ -1033,7 +1453,7 @@
       "expectedStatus": 404,
       "status": 404,
       "passed": true,
-      "milliseconds": 2.8751379999999926,
+      "milliseconds": 1.78875400000004,
       "responseBody": {
         "error": {
           "message": "Package not found"
@@ -1043,7 +1463,7 @@
     {
       "label": "Update package",
       "method": "PATCH",
-      "route": "/packages/1",
+      "route": "/packages/9",
       "requestBody": {
         "price": 125000
       },
@@ -1051,10 +1471,10 @@
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 5.931117000000029,
+      "milliseconds": 6.2162340000000995,
       "responseBody": {
         "data": {
-          "id": 1,
+          "id": 9,
           "name": "Starter",
           "class_quantity": 5,
           "price": "125000.00",
@@ -1065,7 +1485,7 @@
     {
       "label": "Invalid package price",
       "method": "PATCH",
-      "route": "/packages/1",
+      "route": "/packages/9",
       "requestBody": {
         "price": -1
       },
@@ -1073,7 +1493,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 4.383718999999985,
+      "milliseconds": 2.208827999999926,
       "responseBody": {
         "error": {
           "message": "price has an invalid value or decimal precision"
@@ -1094,10 +1514,10 @@
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 4.261590000000012,
+      "milliseconds": 3.0700950000000375,
       "responseBody": {
         "data": {
-          "id": 2,
+          "id": 10,
           "name": "Disposable",
           "class_quantity": 1,
           "price": "1.00",
@@ -1108,25 +1528,25 @@
     {
       "label": "Delete package",
       "method": "DELETE",
-      "route": "/packages/2",
+      "route": "/packages/10",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 204,
       "status": 204,
       "passed": true,
-      "milliseconds": 4.730695000000026,
+      "milliseconds": 3.4630879999999706,
       "responseBody": null
     },
     {
       "label": "Delete missing package",
       "method": "DELETE",
-      "route": "/packages/2",
+      "route": "/packages/10",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 404,
       "status": 404,
       "passed": true,
-      "milliseconds": 5.652648999999997,
+      "milliseconds": 1.7916280000000597,
       "responseBody": {
         "error": {
           "message": "Package not found"
@@ -1138,22 +1558,22 @@
       "method": "POST",
       "route": "/purchases",
       "requestBody": {
-        "packageId": 1
+        "packageId": 9
       },
       "authenticated": true,
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 5.613438999999971,
+      "milliseconds": 4.747054000000048,
       "responseBody": {
         "data": {
-          "id": 1,
-          "user_id": 2,
-          "package_id": 1,
-          "purchased_at": "2026-10-14 21:37:05",
+          "id": 9,
+          "user_id": 23,
+          "package_id": 9,
+          "purchased_at": "2026-11-15 03:45:34",
           "paid_price": "125000.00",
           "buyer_name": "Demo Client",
-          "buyer_email": "client1792013825568@fitpulse.example",
+          "buyer_email": "client1794714334076@fitpulse.example",
           "package_name": "Starter",
           "class_quantity": 5
         }
@@ -1164,14 +1584,14 @@
       "method": "POST",
       "route": "/purchases",
       "requestBody": {
-        "packageId": 1,
+        "packageId": 9,
         "paidPrice": 1
       },
       "authenticated": true,
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 1.6945149999999671,
+      "milliseconds": 1.6469940000000634,
       "responseBody": {
         "error": {
           "message": "Unknown field: paidPrice"
@@ -1187,17 +1607,61 @@
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 3.2422389999999837,
+      "milliseconds": 2.0439530000001014,
       "responseBody": {
         "data": [
           {
-            "id": 1,
-            "user_id": 2,
-            "package_id": 1,
-            "purchased_at": "2026-10-14 21:37:05",
+            "id": 9,
+            "user_id": 23,
+            "package_id": 9,
+            "purchased_at": "2026-11-15 03:45:34",
             "paid_price": "125000.00",
             "buyer_name": "Demo Client",
-            "buyer_email": "client1792013825568@fitpulse.example",
+            "buyer_email": "client1794714334076@fitpulse.example",
+            "package_name": "Starter",
+            "class_quantity": 5
+          },
+          {
+            "id": 8,
+            "user_id": 7,
+            "package_id": 7,
+            "purchased_at": "2026-11-15 03:09:07",
+            "paid_price": "125000.00",
+            "buyer_name": "Local Test Client",
+            "buyer_email": "client@fitpulse.example",
+            "package_name": "Postman Starter",
+            "class_quantity": 5
+          },
+          {
+            "id": 5,
+            "user_id": 14,
+            "package_id": 5,
+            "purchased_at": "2026-11-15 03:09:03",
+            "paid_price": "125000.00",
+            "buyer_name": "Demo Client",
+            "buyer_email": "client1794712142914@fitpulse.example",
+            "package_name": "Starter",
+            "class_quantity": 5
+          },
+          {
+            "id": 4,
+            "user_id": 7,
+            "package_id": 3,
+            "purchased_at": "2026-11-15 02:57:21",
+            "paid_price": "125000.00",
+            "buyer_name": "Local Test Client",
+            "buyer_email": "client@fitpulse.example",
+            "package_name": "Postman Starter",
+            "class_quantity": 5
+          },
+          {
+            "id": 1,
+            "user_id": 3,
+            "package_id": 1,
+            "purchased_at": "2026-11-15 02:57:16",
+            "paid_price": "125000.00",
+            "buyer_name": "Demo Client",
+            "buyer_email": "client1794711436052@fitpulse.example",
             "package_name": "Starter",
             "class_quantity": 5
           }
@@ -1213,7 +1677,7 @@
       "expectedStatus": 403,
       "status": 403,
       "passed": true,
-      "milliseconds": 2.7241109999999935,
+      "milliseconds": 1.2135809999999765,
       "responseBody": {
         "error": {
           "message": "Administrator access is required"
@@ -1223,22 +1687,22 @@
     {
       "label": "Own purchase",
       "method": "GET",
-      "route": "/purchases/1",
+      "route": "/purchases/9",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 2.826485000000048,
+      "milliseconds": 1.5825490000000855,
       "responseBody": {
         "data": {
-          "id": 1,
-          "user_id": 2,
-          "package_id": 1,
-          "purchased_at": "2026-10-14 21:37:05",
+          "id": 9,
+          "user_id": 23,
+          "package_id": 9,
+          "purchased_at": "2026-11-15 03:45:34",
           "paid_price": "125000.00",
           "buyer_name": "Demo Client",
-          "buyer_email": "client1792013825568@fitpulse.example",
+          "buyer_email": "client1794714334076@fitpulse.example",
           "package_name": "Starter",
           "class_quantity": 5
         }
@@ -1253,7 +1717,7 @@
       "expectedStatus": 404,
       "status": 404,
       "passed": true,
-      "milliseconds": 2.818361999999979,
+      "milliseconds": 1.7081650000000081,
       "responseBody": {
         "error": {
           "message": "Purchase not found"
@@ -1263,23 +1727,23 @@
     {
       "label": "Own purchases",
       "method": "GET",
-      "route": "/users/2/purchases",
+      "route": "/users/23/purchases",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 4.082220000000007,
+      "milliseconds": 3.6572059999999738,
       "responseBody": {
         "data": [
           {
-            "id": 1,
-            "user_id": 2,
-            "package_id": 1,
-            "purchased_at": "2026-10-14 21:37:05",
+            "id": 9,
+            "user_id": 23,
+            "package_id": 9,
+            "purchased_at": "2026-11-15 03:45:34",
             "paid_price": "125000.00",
             "buyer_name": "Demo Client",
-            "buyer_email": "client1792013825568@fitpulse.example",
+            "buyer_email": "client1794714334076@fitpulse.example",
             "package_name": "Starter",
             "class_quantity": 5
           }
@@ -1289,13 +1753,13 @@
     {
       "label": "Different user purchases rejected",
       "method": "GET",
-      "route": "/users/1/purchases",
+      "route": "/users/21/purchases",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 403,
       "status": 403,
       "passed": true,
-      "milliseconds": 2.8199600000000373,
+      "milliseconds": 1.4202770000000555,
       "responseBody": {
         "error": {
           "message": "Access denied"
@@ -1305,7 +1769,7 @@
     {
       "label": "Purchased package history protected",
       "method": "PATCH",
-      "route": "/packages/1",
+      "route": "/packages/9",
       "requestBody": {
         "price": 1
       },
@@ -1313,7 +1777,7 @@
       "expectedStatus": 409,
       "status": 409,
       "passed": true,
-      "milliseconds": 3.848305000000039,
+      "milliseconds": 2.3457610000000386,
       "responseBody": {
         "error": {
           "message": "A purchased package cannot be changed"
@@ -1325,24 +1789,24 @@
       "method": "POST",
       "route": "/reservations",
       "requestBody": {
-        "classId": 1
+        "classId": 16
       },
       "authenticated": true,
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 4.688760999999943,
+      "milliseconds": 6.1520530000000235,
       "responseBody": {
         "data": {
-          "id": 1,
-          "user_id": 2,
-          "class_id": 1,
-          "created_at": "2026-10-14 21:37:05",
+          "id": 14,
+          "user_id": 23,
+          "class_id": 16,
+          "created_at": "2026-11-15 03:45:34",
           "status": "reserved",
           "class_name": "Future Yoga",
           "category": "yoga",
-          "starts_at": "2026-10-16 21:37:05",
-          "ends_at": "2026-10-16 22:37:05"
+          "starts_at": "2026-11-17 03:45:34",
+          "ends_at": "2026-11-17 04:45:34"
         }
       }
     },
@@ -1351,13 +1815,13 @@
       "method": "POST",
       "route": "/reservations",
       "requestBody": {
-        "classId": 1
+        "classId": 16
       },
       "authenticated": true,
       "expectedStatus": 409,
       "status": 409,
       "passed": true,
-      "milliseconds": 4.8706549999999424,
+      "milliseconds": 2.383466999999996,
       "responseBody": {
         "error": {
           "message": "The class is already reserved by this user"
@@ -1367,24 +1831,24 @@
     {
       "label": "Reservation details",
       "method": "GET",
-      "route": "/reservations/1",
+      "route": "/reservations/14",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 2.8478619999999637,
+      "milliseconds": 1.6909090000000333,
       "responseBody": {
         "data": {
-          "id": 1,
-          "user_id": 2,
-          "class_id": 1,
-          "created_at": "2026-10-14 21:37:05",
+          "id": 14,
+          "user_id": 23,
+          "class_id": 16,
+          "created_at": "2026-11-15 03:45:34",
           "status": "reserved",
           "class_name": "Future Yoga",
           "category": "yoga",
-          "starts_at": "2026-10-16 21:37:05",
-          "ends_at": "2026-10-16 22:37:05"
+          "starts_at": "2026-11-17 03:45:34",
+          "ends_at": "2026-11-17 04:45:34"
         }
       }
     },
@@ -1397,7 +1861,7 @@
       "expectedStatus": 404,
       "status": 404,
       "passed": true,
-      "milliseconds": 2.999433999999951,
+      "milliseconds": 1.7337629999999535,
       "responseBody": {
         "error": {
           "message": "Reservation not found"
@@ -1407,25 +1871,25 @@
     {
       "label": "Reserved classes",
       "method": "GET",
-      "route": "/users/2/reservations?status=reserved",
+      "route": "/users/23/reservations?status=reserved",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 4.062099999999987,
+      "milliseconds": 2.9432279999999764,
       "responseBody": {
         "data": [
           {
-            "id": 1,
-            "user_id": 2,
-            "class_id": 1,
-            "created_at": "2026-10-14 21:37:05",
+            "id": 14,
+            "user_id": 23,
+            "class_id": 16,
+            "created_at": "2026-11-15 03:45:34",
             "status": "reserved",
             "class_name": "Future Yoga",
             "category": "yoga",
-            "starts_at": "2026-10-16 21:37:05",
-            "ends_at": "2026-10-16 22:37:05"
+            "starts_at": "2026-11-17 03:45:34",
+            "ends_at": "2026-11-17 04:45:34"
           }
         ]
       }
@@ -1433,13 +1897,13 @@
     {
       "label": "Invalid reservation filter",
       "method": "GET",
-      "route": "/users/2/reservations?status=wrong",
+      "route": "/users/23/reservations?status=wrong",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 2.700796000000082,
+      "milliseconds": 1.3231739999999945,
       "responseBody": {
         "error": {
           "message": "status must be one of: reserved, attended, no_show"
@@ -1449,7 +1913,7 @@
     {
       "label": "Reserved class history protected",
       "method": "PATCH",
-      "route": "/classes/1",
+      "route": "/classes/16",
       "requestBody": {
         "category": "crossfit"
       },
@@ -1457,7 +1921,7 @@
       "expectedStatus": 409,
       "status": 409,
       "passed": true,
-      "milliseconds": 3.774538000000007,
+      "milliseconds": 2.204001000000062,
       "responseBody": {
         "error": {
           "message": "A class with reservations cannot be changed"
@@ -1467,7 +1931,7 @@
     {
       "label": "Future attendance rejected",
       "method": "PATCH",
-      "route": "/reservations/1/attendance",
+      "route": "/reservations/14/attendance",
       "requestBody": {
         "status": "attended"
       },
@@ -1475,7 +1939,7 @@
       "expectedStatus": 409,
       "status": 409,
       "passed": true,
-      "milliseconds": 4.664471000000049,
+      "milliseconds": 2.3700269999999364,
       "responseBody": {
         "error": {
           "message": "The class has not ended"
@@ -1487,14 +1951,14 @@
       "method": "POST",
       "route": "/reviews",
       "requestBody": {
-        "classId": 1,
+        "classId": 16,
         "rating": 5
       },
       "authenticated": true,
       "expectedStatus": 409,
       "status": 409,
       "passed": true,
-      "milliseconds": 4.566928999999959,
+      "milliseconds": 2.382765999999947,
       "responseBody": {
         "error": {
           "message": "Only classes attended by this user can be reviewed"
@@ -1506,13 +1970,13 @@
       "method": "POST",
       "route": "/reservations",
       "requestBody": {
-        "classId": 3
+        "classId": 18
       },
       "authenticated": true,
       "expectedStatus": 409,
       "status": 409,
       "passed": true,
-      "milliseconds": 3.6870569999999816,
+      "milliseconds": 1.9481200000000172,
       "responseBody": {
         "error": {
           "message": "The class has already started"
@@ -1522,7 +1986,7 @@
     {
       "label": "Record attendance",
       "method": "PATCH",
-      "route": "/reservations/2/attendance",
+      "route": "/reservations/15/attendance",
       "requestBody": {
         "status": "attended"
       },
@@ -1530,43 +1994,43 @@
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 4.262581000000068,
+      "milliseconds": 4.792591000000016,
       "responseBody": {
         "data": {
-          "id": 2,
-          "user_id": 2,
-          "class_id": 3,
-          "created_at": "2026-10-14 21:37:05",
+          "id": 15,
+          "user_id": 23,
+          "class_id": 18,
+          "created_at": "2026-11-15 03:45:34",
           "status": "attended",
-          "class_name": "Past Yoga 1792013825568",
+          "class_name": "Past Yoga 1794714334076",
           "category": "yoga",
-          "starts_at": "2026-10-07 21:37:06",
-          "ends_at": "2026-10-07 22:37:06"
+          "starts_at": "2026-11-08 03:45:35",
+          "ends_at": "2026-11-08 04:45:35"
         }
       }
     },
     {
       "label": "Attended classes",
       "method": "GET",
-      "route": "/users/2/reservations?status=attended",
+      "route": "/users/23/reservations?status=attended",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 3.5000270000000455,
+      "milliseconds": 2.123601000000008,
       "responseBody": {
         "data": [
           {
-            "id": 2,
-            "user_id": 2,
-            "class_id": 3,
-            "created_at": "2026-10-14 21:37:05",
+            "id": 15,
+            "user_id": 23,
+            "class_id": 18,
+            "created_at": "2026-11-15 03:45:34",
             "status": "attended",
-            "class_name": "Past Yoga 1792013825568",
+            "class_name": "Past Yoga 1794714334076",
             "category": "yoga",
-            "starts_at": "2026-10-07 21:37:06",
-            "ends_at": "2026-10-07 22:37:06"
+            "starts_at": "2026-11-08 03:45:35",
+            "ends_at": "2026-11-08 04:45:35"
           }
         ]
       }
@@ -1576,7 +2040,7 @@
       "method": "POST",
       "route": "/reviews",
       "requestBody": {
-        "classId": 3,
+        "classId": 18,
         "rating": 5,
         "comment": "Clear instructions",
         "intensity": "moderate",
@@ -1589,12 +2053,12 @@
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 7.488376000000017,
+      "milliseconds": 5.937239999999974,
       "responseBody": {
         "data": {
-          "id": 1,
-          "user_id": 2,
-          "class_id": 3,
+          "id": 11,
+          "user_id": 23,
+          "class_id": 18,
           "rating": 5,
           "comment": "Clear instructions",
           "intensity": "moderate",
@@ -1602,8 +2066,8 @@
             "friendly",
             "organized"
           ],
-          "created_at": "2026-10-14 21:37:05",
-          "updated_at": "2026-10-14 21:37:05"
+          "created_at": "2026-11-15 03:45:34",
+          "updated_at": "2026-11-15 03:45:34"
         }
       }
     },
@@ -1612,14 +2076,14 @@
       "method": "POST",
       "route": "/reviews",
       "requestBody": {
-        "classId": 3,
+        "classId": 18,
         "rating": 5
       },
       "authenticated": true,
       "expectedStatus": 409,
       "status": 409,
       "passed": true,
-      "milliseconds": 5.860140999999999,
+      "milliseconds": 2.657534000000055,
       "responseBody": {
         "error": {
           "message": "This user already reviewed the class"
@@ -1629,18 +2093,18 @@
     {
       "label": "Review details",
       "method": "GET",
-      "route": "/reviews/1",
+      "route": "/reviews/11",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 3.1272760000000517,
+      "milliseconds": 1.5718420000000606,
       "responseBody": {
         "data": {
-          "id": 1,
-          "user_id": 2,
-          "class_id": 3,
+          "id": 11,
+          "user_id": 23,
+          "class_id": 18,
           "rating": 5,
           "comment": "Clear instructions",
           "intensity": "moderate",
@@ -1648,8 +2112,8 @@
             "friendly",
             "organized"
           ],
-          "created_at": "2026-10-14 21:37:05",
-          "updated_at": "2026-10-14 21:37:05"
+          "created_at": "2026-11-15 03:45:34",
+          "updated_at": "2026-11-15 03:45:34"
         }
       }
     },
@@ -1662,7 +2126,7 @@
       "expectedStatus": 404,
       "status": 404,
       "passed": true,
-      "milliseconds": 3.411373000000026,
+      "milliseconds": 1.7239989999999352,
       "responseBody": {
         "error": {
           "message": "Review not found"
@@ -1672,19 +2136,19 @@
     {
       "label": "Class reviews",
       "method": "GET",
-      "route": "/classes/3/reviews",
+      "route": "/classes/18/reviews",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 5.009804000000031,
+      "milliseconds": 2.404457999999977,
       "responseBody": {
         "data": [
           {
-            "id": 1,
-            "user_id": 2,
-            "class_id": 3,
+            "id": 11,
+            "user_id": 23,
+            "class_id": 18,
             "rating": 5,
             "comment": "Clear instructions",
             "intensity": "moderate",
@@ -1692,8 +2156,8 @@
               "friendly",
               "organized"
             ],
-            "created_at": "2026-10-14 21:37:05",
-            "updated_at": "2026-10-14 21:37:05"
+            "created_at": "2026-11-15 03:45:34",
+            "updated_at": "2026-11-15 03:45:34"
           }
         ]
       }
@@ -1707,7 +2171,7 @@
       "expectedStatus": 404,
       "status": 404,
       "passed": true,
-      "milliseconds": 3.2298299999999927,
+      "milliseconds": 1.4505329999999503,
       "responseBody": {
         "error": {
           "message": "Class not found"
@@ -1717,7 +2181,7 @@
     {
       "label": "Clear review tags",
       "method": "PATCH",
-      "route": "/reviews/1",
+      "route": "/reviews/11",
       "requestBody": {
         "tags": []
       },
@@ -1725,25 +2189,25 @@
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 5.094090000000051,
+      "milliseconds": 4.074275000000057,
       "responseBody": {
         "data": {
-          "id": 1,
-          "user_id": 2,
-          "class_id": 3,
+          "id": 11,
+          "user_id": 23,
+          "class_id": 18,
           "rating": 5,
           "comment": "Clear instructions",
           "intensity": "moderate",
           "tags": [],
-          "created_at": "2026-10-14 21:37:05",
-          "updated_at": "2026-10-14 21:37:05"
+          "created_at": "2026-11-15 03:45:34",
+          "updated_at": "2026-11-15 03:45:34"
         }
       }
     },
     {
       "label": "Duplicate tags rejected",
       "method": "PATCH",
-      "route": "/reviews/1",
+      "route": "/reviews/11",
       "requestBody": {
         "tags": [
           "good",
@@ -1754,7 +2218,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 3.4510930000000144,
+      "milliseconds": 1.7457800000000816,
       "responseBody": {
         "error": {
           "message": "tags cannot contain duplicates"
@@ -1764,15 +2228,15 @@
     {
       "label": "Reviewed class cannot be replaced",
       "method": "PATCH",
-      "route": "/reviews/1",
+      "route": "/reviews/11",
       "requestBody": {
-        "classId": 1
+        "classId": 16
       },
       "authenticated": true,
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 3.0374010000000453,
+      "milliseconds": 1.3623309999999265,
       "responseBody": {
         "error": {
           "message": "Unknown field: classId"
@@ -1782,25 +2246,25 @@
     {
       "label": "Delete review",
       "method": "DELETE",
-      "route": "/reviews/1",
+      "route": "/reviews/11",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 204,
       "status": 204,
       "passed": true,
-      "milliseconds": 4.714529999999968,
+      "milliseconds": 3.2814890000000787,
       "responseBody": null
     },
     {
       "label": "Deleting a review preserves recorded attendance",
       "method": "GET",
-      "route": "/users/2/progress",
+      "route": "/users/23/progress",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 6.282564999999977,
+      "milliseconds": 4.515931000000023,
       "responseBody": {
         "data": {
           "weeklyStreak": 1,
@@ -1816,13 +2280,13 @@
     {
       "label": "Delete missing review",
       "method": "DELETE",
-      "route": "/reviews/1",
+      "route": "/reviews/11",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 404,
       "status": 404,
       "passed": true,
-      "milliseconds": 3.079315000000065,
+      "milliseconds": 1.6402440000000524,
       "responseBody": {
         "error": {
           "message": "Review not found"
@@ -1834,60 +2298,60 @@
       "method": "POST",
       "route": "/reviews",
       "requestBody": {
-        "classId": 3,
+        "classId": 18,
         "rating": 4
       },
       "authenticated": true,
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 4.888191000000006,
+      "milliseconds": 4.24355700000001,
       "responseBody": {
         "data": {
-          "id": 2,
-          "user_id": 2,
-          "class_id": 3,
+          "id": 12,
+          "user_id": 23,
+          "class_id": 18,
           "rating": 4,
           "comment": null,
           "intensity": null,
           "tags": [],
-          "created_at": "2026-10-14 21:37:05",
-          "updated_at": "2026-10-14 21:37:05"
+          "created_at": "2026-11-15 03:45:34",
+          "updated_at": "2026-11-15 03:45:34"
         }
       }
     },
     {
       "label": "Create personal record",
       "method": "POST",
-      "route": "/users/2/personal-records",
+      "route": "/users/23/personal-records",
       "requestBody": {
         "exercise": "Deadlift",
         "recordType": "maximum_weight",
         "value": 80,
         "unit": "kg",
-        "achievedOn": "2026-10-14"
+        "achievedOn": "2026-11-14"
       },
       "authenticated": true,
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 6.101812999999993,
+      "milliseconds": 5.112416000000053,
       "responseBody": {
         "data": {
-          "id": 1,
-          "user_id": 2,
+          "id": 5,
+          "user_id": 23,
           "exercise": "Deadlift",
           "record_type": "maximum_weight",
           "value": "80.000",
           "unit": "kg",
-          "achieved_on": "2026-10-14"
+          "achieved_on": "2026-11-14"
         }
       }
     },
     {
       "label": "Incomplete personal record",
       "method": "POST",
-      "route": "/users/2/personal-records",
+      "route": "/users/23/personal-records",
       "requestBody": {
         "exercise": "Deadlift"
       },
@@ -1895,7 +2359,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 3.0442319999999654,
+      "milliseconds": 6.794893000000002,
       "responseBody": {
         "error": {
           "message": "recordType is required"
@@ -1905,19 +2369,19 @@
     {
       "label": "Record type exceeds database length",
       "method": "POST",
-      "route": "/users/2/personal-records",
+      "route": "/users/23/personal-records",
       "requestBody": {
         "exercise": "Deadlift",
         "recordType": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "value": 80,
         "unit": "kg",
-        "achievedOn": "2026-10-14"
+        "achievedOn": "2026-11-14"
       },
       "authenticated": true,
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 3.9513689999999997,
+      "milliseconds": 1.931436000000076,
       "responseBody": {
         "error": {
           "message": "recordType must be nonempty text of at most 45 characters"
@@ -1927,23 +2391,23 @@
     {
       "label": "Personal records list",
       "method": "GET",
-      "route": "/users/2/personal-records",
+      "route": "/users/23/personal-records",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 3.9420499999999947,
+      "milliseconds": 3.0981269999999768,
       "responseBody": {
         "data": [
           {
-            "id": 1,
-            "user_id": 2,
+            "id": 5,
+            "user_id": 23,
             "exercise": "Deadlift",
             "record_type": "maximum_weight",
             "value": "80.000",
             "unit": "kg",
-            "achieved_on": "2026-10-14"
+            "achieved_on": "2026-11-14"
           }
         ]
       }
@@ -1951,13 +2415,13 @@
     {
       "label": "Different user records rejected",
       "method": "GET",
-      "route": "/users/1/personal-records",
+      "route": "/users/21/personal-records",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 403,
       "status": 403,
       "passed": true,
-      "milliseconds": 2.380956000000083,
+      "milliseconds": 2.523664999999937,
       "responseBody": {
         "error": {
           "message": "Access denied"
@@ -1967,22 +2431,22 @@
     {
       "label": "Personal record details",
       "method": "GET",
-      "route": "/personal-records/1",
+      "route": "/personal-records/5",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 1.5007739999999785,
+      "milliseconds": 1.928590999999983,
       "responseBody": {
         "data": {
-          "id": 1,
-          "user_id": 2,
+          "id": 5,
+          "user_id": 23,
           "exercise": "Deadlift",
           "record_type": "maximum_weight",
           "value": "80.000",
           "unit": "kg",
-          "achieved_on": "2026-10-14"
+          "achieved_on": "2026-11-14"
         }
       }
     },
@@ -1995,7 +2459,7 @@
       "expectedStatus": 404,
       "status": 404,
       "passed": true,
-      "milliseconds": 2.8351969999999937,
+      "milliseconds": 1.6267339999999422,
       "responseBody": {
         "error": {
           "message": "Personal record not found"
@@ -2005,7 +2469,7 @@
     {
       "label": "Update personal record",
       "method": "PATCH",
-      "route": "/personal-records/1",
+      "route": "/personal-records/5",
       "requestBody": {
         "value": 85
       },
@@ -2013,23 +2477,23 @@
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 4.705406999999923,
+      "milliseconds": 5.931421,
       "responseBody": {
         "data": {
-          "id": 1,
-          "user_id": 2,
+          "id": 5,
+          "user_id": 23,
           "exercise": "Deadlift",
           "record_type": "maximum_weight",
           "value": "85.000",
           "unit": "kg",
-          "achieved_on": "2026-10-14"
+          "achieved_on": "2026-11-14"
         }
       }
     },
     {
       "label": "Invalid calendar date",
       "method": "PATCH",
-      "route": "/personal-records/1",
+      "route": "/personal-records/5",
       "requestBody": {
         "achievedOn": "2026-02-30"
       },
@@ -2037,7 +2501,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 3.413161000000059,
+      "milliseconds": 2.14784700000007,
       "responseBody": {
         "error": {
           "message": "achievedOn is not a valid date"
@@ -2047,25 +2511,25 @@
     {
       "label": "Delete personal record",
       "method": "DELETE",
-      "route": "/personal-records/1",
+      "route": "/personal-records/5",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 204,
       "status": 204,
       "passed": true,
-      "milliseconds": 3.5737470000000258,
+      "milliseconds": 3.259366,
       "responseBody": null
     },
     {
       "label": "Delete missing personal record",
       "method": "DELETE",
-      "route": "/personal-records/1",
+      "route": "/personal-records/5",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 404,
       "status": 404,
       "passed": true,
-      "milliseconds": 2.829810000000066,
+      "milliseconds": 1.701424999999972,
       "responseBody": {
         "error": {
           "message": "Personal record not found"
@@ -2075,7 +2539,7 @@
     {
       "label": "Record absence after class completion",
       "method": "PATCH",
-      "route": "/reservations/3/attendance",
+      "route": "/reservations/16/attendance",
       "requestBody": {
         "status": "no_show"
       },
@@ -2083,18 +2547,18 @@
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 4.041319000000044,
+      "milliseconds": 4.115927000000056,
       "responseBody": {
         "data": {
-          "id": 3,
-          "user_id": 2,
-          "class_id": 4,
-          "created_at": "2026-10-14 21:37:06",
+          "id": 16,
+          "user_id": 23,
+          "class_id": 19,
+          "created_at": "2026-11-15 03:45:34",
           "status": "no_show",
-          "class_name": "Past Yoga 1792013825568",
+          "class_name": "Past Yoga 1794714334076",
           "category": "yoga",
-          "starts_at": "2026-09-30 21:37:06",
-          "ends_at": "2026-09-30 22:37:06"
+          "starts_at": "2026-11-01 03:45:35",
+          "ends_at": "2026-11-01 04:45:35"
         }
       }
     },
@@ -2103,14 +2567,14 @@
       "method": "POST",
       "route": "/reviews",
       "requestBody": {
-        "classId": 4,
+        "classId": 19,
         "rating": 5
       },
       "authenticated": true,
       "expectedStatus": 409,
       "status": 409,
       "passed": true,
-      "milliseconds": 3.8236120000000255,
+      "milliseconds": 2.8551969999999756,
       "responseBody": {
         "error": {
           "message": "Only classes attended by this user can be reviewed"
@@ -2120,7 +2584,7 @@
     {
       "label": "Final attendance state cannot be overwritten",
       "method": "PATCH",
-      "route": "/reservations/3/attendance",
+      "route": "/reservations/16/attendance",
       "requestBody": {
         "status": "attended"
       },
@@ -2128,7 +2592,7 @@
       "expectedStatus": 409,
       "status": 409,
       "passed": true,
-      "milliseconds": 3.4528249999999616,
+      "milliseconds": 2.3519300000000385,
       "responseBody": {
         "error": {
           "message": "Attendance has already been recorded"
@@ -2138,13 +2602,13 @@
     {
       "label": "Weekly streak and category totals",
       "method": "GET",
-      "route": "/users/2/progress",
+      "route": "/users/23/progress",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 4.042791999999963,
+      "milliseconds": 2.604153999999994,
       "responseBody": {
         "data": {
           "weeklyStreak": 1,
@@ -2160,13 +2624,13 @@
     {
       "label": "Different user progress rejected",
       "method": "GET",
-      "route": "/users/1/progress",
+      "route": "/users/21/progress",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 403,
       "status": 403,
       "passed": true,
-      "milliseconds": 2.4382909999999356,
+      "milliseconds": 1.20193299999994,
       "responseBody": {
         "error": {
           "message": "Access denied"
@@ -2176,7 +2640,7 @@
     {
       "label": "Client cannot register its own attendance",
       "method": "PATCH",
-      "route": "/reservations/1/attendance",
+      "route": "/reservations/14/attendance",
       "requestBody": {
         "status": "attended"
       },
@@ -2184,7 +2648,7 @@
       "expectedStatus": 403,
       "status": 403,
       "passed": true,
-      "milliseconds": 2.679313000000093,
+      "milliseconds": 1.8126399999999876,
       "responseBody": {
         "error": {
           "message": "Administrator access is required"
@@ -2194,22 +2658,42 @@
     {
       "label": "Daily sales report",
       "method": "GET",
-      "route": "/reports/sales?date=2026-10-14",
+      "route": "/reports/sales?date=2026-11-14",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 4.017793999999981,
+      "milliseconds": 2.783621000000039,
       "responseBody": {
         "data": {
-          "date": "2026-10-14",
+          "date": "2026-11-14",
           "timeZone": "America/Bogota",
-          "purchaseCount": 1,
-          "totalPaid": "125000.00",
+          "purchaseCount": 5,
+          "totalPaid": "625000.00",
           "packages": [
             {
               "packageId": 1,
+              "purchaseCount": 1,
+              "totalPaid": "125000.00"
+            },
+            {
+              "packageId": 3,
+              "purchaseCount": 1,
+              "totalPaid": "125000.00"
+            },
+            {
+              "packageId": 5,
+              "purchaseCount": 1,
+              "totalPaid": "125000.00"
+            },
+            {
+              "packageId": 7,
+              "purchaseCount": 1,
+              "totalPaid": "125000.00"
+            },
+            {
+              "packageId": 9,
               "purchaseCount": 1,
               "totalPaid": "125000.00"
             }
@@ -2226,7 +2710,7 @@
       "expectedStatus": 403,
       "status": 403,
       "passed": true,
-      "milliseconds": 1.2981189999999287,
+      "milliseconds": 1.3054370000000972,
       "responseBody": {
         "error": {
           "message": "Administrator access is required"
@@ -2242,7 +2726,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 2.2669649999999137,
+      "milliseconds": 1.4174030000000357,
       "responseBody": {
         "error": {
           "message": "date is not a valid date"
@@ -2258,7 +2742,7 @@
       "expectedStatus": 401,
       "status": 401,
       "passed": true,
-      "milliseconds": 1.739992999999913,
+      "milliseconds": 0.6420130000000199,
       "responseBody": {
         "error": {
           "message": "A Bearer token is required"
@@ -2274,7 +2758,7 @@
       "expectedStatus": 401,
       "status": 401,
       "passed": true,
-      "milliseconds": 1.9807250000000067,
+      "milliseconds": 0.9035999999999831,
       "responseBody": {
         "error": {
           "message": "Invalid or expired token"
@@ -2290,7 +2774,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 2.346153999999956,
+      "milliseconds": 1.27547299999992,
       "responseBody": {
         "error": {
           "message": "offset must be a nonnegative integer"
@@ -2306,7 +2790,7 @@
       "expectedStatus": 400,
       "status": 400,
       "passed": true,
-      "milliseconds": 2.927445999999918,
+      "milliseconds": 1.2732489999999643,
       "responseBody": {
         "error": {
           "message": "Unknown field: unexpected"
@@ -2319,22 +2803,22 @@
       "route": "/users",
       "requestBody": {
         "name": "Other Client",
-        "email": "other1792013825568@fitpulse.example",
+        "email": "other1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 3.601248000000055,
+      "milliseconds": 21.25380800000005,
       "responseBody": {
         "data": {
-          "id": 4,
+          "id": 25,
           "name": "Other Client",
-          "email": "other1792013825568@fitpulse.example",
+          "email": "other1794714334076@fitpulse.example",
           "role": "client",
           "status": "active",
-          "registered_at": "2026-10-14 21:37:06"
+          "registered_at": "2026-11-15 03:45:34"
         }
       }
     },
@@ -2343,26 +2827,26 @@
       "method": "POST",
       "route": "/sessions",
       "requestBody": {
-        "email": "other1792013825568@fitpulse.example",
+        "email": "other1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 3.5962509999999384,
+      "milliseconds": 23.685004999999933,
       "responseBody": {
         "data": {
           "accessToken": "[redacted]",
           "tokenType": "Bearer",
           "expiresIn": "1h",
           "user": {
-            "id": 4,
+            "id": 25,
             "name": "Other Client",
-            "email": "other1792013825568@fitpulse.example",
+            "email": "other1794714334076@fitpulse.example",
             "role": "client",
             "status": "active",
-            "registered_at": "2026-10-14 21:37:06"
+            "registered_at": "2026-11-15 03:45:34"
           }
         }
       }
@@ -2370,13 +2854,13 @@
     {
       "label": "Reservation ownership",
       "method": "GET",
-      "route": "/reservations/1",
+      "route": "/reservations/14",
       "requestBody": null,
       "authenticated": true,
       "expectedStatus": 403,
       "status": 403,
       "passed": true,
-      "milliseconds": 2.8607960000000503,
+      "milliseconds": 2.0900810000000547,
       "responseBody": {
         "error": {
           "message": "Access denied"
@@ -2386,7 +2870,7 @@
     {
       "label": "Review ownership",
       "method": "PATCH",
-      "route": "/reviews/2",
+      "route": "/reviews/12",
       "requestBody": {
         "rating": 1
       },
@@ -2394,7 +2878,7 @@
       "expectedStatus": 403,
       "status": 403,
       "passed": true,
-      "milliseconds": 4.104824000000008,
+      "milliseconds": 2.60746000000006,
       "responseBody": {
         "error": {
           "message": "Access denied"
@@ -2406,14 +2890,14 @@
       "method": "POST",
       "route": "/sessions",
       "requestBody": {
-        "email": "other1792013825568@fitpulse.example",
+        "email": "other1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 401,
       "status": 401,
       "passed": true,
-      "milliseconds": 3.7789549999999963,
+      "milliseconds": 21.34845800000005,
       "responseBody": {
         "error": {
           "message": "Invalid credentials"
@@ -2425,14 +2909,14 @@
       "method": "POST",
       "route": "/sessions",
       "requestBody": {
-        "email": "other1792013825568@fitpulse.example",
+        "email": "other1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 401,
       "status": 401,
       "passed": true,
-      "milliseconds": 4.41130499999997,
+      "milliseconds": 21.993083999999953,
       "responseBody": {
         "error": {
           "message": "Invalid credentials"
@@ -2444,14 +2928,14 @@
       "method": "POST",
       "route": "/sessions",
       "requestBody": {
-        "email": "other1792013825568@fitpulse.example",
+        "email": "other1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 401,
       "status": 401,
       "passed": true,
-      "milliseconds": 3.131934000000001,
+      "milliseconds": 25.673366000000215,
       "responseBody": {
         "error": {
           "message": "Invalid credentials"
@@ -2463,14 +2947,14 @@
       "method": "POST",
       "route": "/sessions",
       "requestBody": {
-        "email": "other1792013825568@fitpulse.example",
+        "email": "other1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 401,
       "status": 401,
       "passed": true,
-      "milliseconds": 2.8909810000000107,
+      "milliseconds": 27.15003700000011,
       "responseBody": {
         "error": {
           "message": "Invalid credentials"
@@ -2482,14 +2966,14 @@
       "method": "POST",
       "route": "/sessions",
       "requestBody": {
-        "email": "other1792013825568@fitpulse.example",
+        "email": "other1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 423,
       "status": 423,
       "passed": true,
-      "milliseconds": 3.4608080000000427,
+      "milliseconds": 29.838606000000027,
       "responseBody": {
         "error": {
           "message": "Account is temporarily locked"
@@ -2501,14 +2985,14 @@
       "method": "POST",
       "route": "/sessions",
       "requestBody": {
-        "email": "other1792013825568@fitpulse.example",
+        "email": "other1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 423,
       "status": 423,
       "passed": true,
-      "milliseconds": 2.740846000000033,
+      "milliseconds": 2.379611000000068,
       "responseBody": {
         "error": {
           "message": "Account is temporarily locked"
@@ -2520,26 +3004,26 @@
       "method": "POST",
       "route": "/sessions",
       "requestBody": {
-        "email": "other1792013825568@fitpulse.example",
+        "email": "other1794714334076@fitpulse.example",
         "password": "[redacted]"
       },
       "authenticated": false,
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 4.085645999999997,
+      "milliseconds": 33.500058999999965,
       "responseBody": {
         "data": {
           "accessToken": "[redacted]",
           "tokenType": "Bearer",
           "expiresIn": "1h",
           "user": {
-            "id": 4,
+            "id": 25,
             "name": "Other Client",
-            "email": "other1792013825568@fitpulse.example",
+            "email": "other1794714334076@fitpulse.example",
             "role": "client",
             "status": "active",
-            "registered_at": "2026-10-14 21:37:06"
+            "registered_at": "2026-11-15 03:45:34"
           }
         }
       }
@@ -2552,8 +3036,8 @@
         "name": "Last Spot",
         "category": "yoga",
         "instructorName": "Demo Coach",
-        "startsAt": "2026-10-16T21:37:06.116Z",
-        "endsAt": "2026-10-16T22:37:06.116Z",
+        "startsAt": "2026-11-17T03:45:35.050Z",
+        "endsAt": "2026-11-17T04:45:35.050Z",
         "capacity": 1,
         "price": 25000,
         "description": "Mobility and breathing"
@@ -2562,15 +3046,15 @@
       "expectedStatus": 201,
       "status": 201,
       "passed": true,
-      "milliseconds": 3.9734869999999773,
+      "milliseconds": 4.714124999999967,
       "responseBody": {
         "data": {
-          "id": 5,
+          "id": 20,
           "name": "Last Spot",
           "category": "yoga",
           "instructor_name": "Demo Coach",
-          "starts_at": "2026-10-16 21:37:06",
-          "ends_at": "2026-10-16 22:37:06",
+          "starts_at": "2026-11-17 03:45:35",
+          "ends_at": "2026-11-17 04:45:35",
           "capacity": 1,
           "price": "25000.00",
           "description": "Mobility and breathing",
@@ -2583,7 +3067,7 @@
       "method": "POST",
       "route": "/reservations",
       "requestBody": {
-        "classId": 5
+        "classId": 20
       },
       "authenticated": true,
       "expectedStatus": [
@@ -2592,18 +3076,18 @@
       ],
       "status": 201,
       "passed": true,
-      "milliseconds": 6.621223999999984,
+      "milliseconds": 13.851202999999941,
       "responseBody": {
         "data": {
-          "id": 4,
-          "user_id": 2,
-          "class_id": 5,
-          "created_at": "2026-10-14 21:37:06",
+          "id": 17,
+          "user_id": 23,
+          "class_id": 20,
+          "created_at": "2026-11-15 03:45:35",
           "status": "reserved",
           "class_name": "Last Spot",
           "category": "yoga",
-          "starts_at": "2026-10-16 21:37:06",
-          "ends_at": "2026-10-16 22:37:06"
+          "starts_at": "2026-11-17 03:45:35",
+          "ends_at": "2026-11-17 04:45:35"
         }
       }
     },
@@ -2612,7 +3096,7 @@
       "method": "POST",
       "route": "/reservations",
       "requestBody": {
-        "classId": 5
+        "classId": 20
       },
       "authenticated": true,
       "expectedStatus": [
@@ -2621,7 +3105,7 @@
       ],
       "status": 409,
       "passed": true,
-      "milliseconds": 7.644902000000002,
+      "milliseconds": 14.951706000000058,
       "responseBody": {
         "error": {
           "message": "The class is full"
@@ -2637,7 +3121,7 @@
       "expectedStatus": 200,
       "status": 200,
       "passed": true,
-      "milliseconds": 3.9656850000000077,
+      "milliseconds": 2.783050000000003,
       "responseBody": {
         "data": {
           "date": "2020-01-01",
@@ -2646,7 +3130,7 @@
           "totalPaid": "0.01",
           "packages": [
             {
-              "packageId": 1,
+              "packageId": 9,
               "purchaseCount": 1,
               "totalPaid": "0.01"
             }

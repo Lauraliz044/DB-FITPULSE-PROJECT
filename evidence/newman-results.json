@@ -1,0 +1,1069 @@
+{
+  "runner": "Newman (Postman collection CLI)",
+  "executedAt": "2026-11-15T03:45:39.235Z",
+  "passed": true,
+  "requests": {
+    "total": 76,
+    "pending": 0,
+    "failed": 0
+  },
+  "assertions": {
+    "total": 149,
+    "pending": 0,
+    "failed": 0
+  },
+  "cases": [
+    {
+      "name": "POST /sessions - admin login - success (201)",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Status code is 201",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /sessions - client login - success (201)",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Status code is 201",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /sessions - unknown email - error (401)",
+      "status": 401,
+      "assertions": [
+        {
+          "name": "Status code is 401",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /users - register client - success (201)",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Status code is 201",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /users - invalid email - error (400)",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Status code is 400",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /users - duplicate email - error (409)",
+      "status": 409,
+      "assertions": [
+        {
+          "name": "Status code is 409",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /users - admin - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /users - client role - error (403)",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Status code is 403",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /users/{id} - own profile - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /users/{id} - missing user - error (404)",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Status code is 404",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /users/{id}/status - deactivate - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /users/{id}/status - invalid status - error (400)",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Status code is 400",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /packages - success (201)",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Status code is 201",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /packages - missing fields - error (400)",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Status code is 400",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /packages - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /packages - invalid limit - error (400)",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Status code is 400",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /packages/{id} - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /packages/{id} - missing package - error (404)",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Status code is 404",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /packages/{id} - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /packages/{id} - negative price - error (400)",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Status code is 400",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /packages - disposable package - success (201)",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Status code is 201",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "DELETE /packages/{id} - success (204)",
+      "status": 204,
+      "assertions": [
+        {
+          "name": "Status code is 204",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "DELETE /packages/{id} - already deleted - error (404)",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Status code is 404",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /classes - success (201)",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Status code is 201",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /classes - client role - error (403)",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Status code is 403",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /classes - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /classes - without token - error (401)",
+      "status": 401,
+      "assertions": [
+        {
+          "name": "Status code is 401",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /classes/{id} - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /classes/{id} - missing class - error (404)",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Status code is 404",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /classes/{id} - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /classes/{id} - zero capacity - error (400)",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Status code is 400",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /classes - disposable class - success (201)",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Status code is 201",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "DELETE /classes/{id} - success (204)",
+      "status": 204,
+      "assertions": [
+        {
+          "name": "Status code is 204",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "DELETE /classes/{id} - already deleted - error (404)",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Status code is 404",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /purchases - success (201)",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Status code is 201",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /purchases - client sends price - error (400)",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Status code is 400",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /purchases - admin - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /purchases - client role - error (403)",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Status code is 403",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /purchases/{id} - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /purchases/{id} - missing purchase - error (404)",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Status code is 404",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /users/{userId}/purchases - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /users/{userId}/purchases - other user - error (403)",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Status code is 403",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /packages/{id} - purchased package - error (409)",
+      "status": 409,
+      "assertions": [
+        {
+          "name": "Status code is 409",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /reservations - success (201)",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Status code is 201",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /reservations - duplicate - error (409)",
+      "status": 409,
+      "assertions": [
+        {
+          "name": "Status code is 409",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /reservations/{id} - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /reservations/{id} - missing reservation - error (404)",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Status code is 404",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /users/{userId}/reservations - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        },
+        {
+          "name": "A finished class reservation exists (run npm run db:demo)",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /users/{userId}/reservations - invalid filter - error (400)",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Status code is 400",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /reservations/{id}/attendance - finished class - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /reservations/{id}/attendance - class not ended - error (409)",
+      "status": 409,
+      "assertions": [
+        {
+          "name": "Status code is 409",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /classes/{id} - class with reservations - error (409)",
+      "status": 409,
+      "assertions": [
+        {
+          "name": "Status code is 409",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /reviews - attended class - success (201)",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Status code is 201",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /reviews - class not attended - error (409)",
+      "status": 409,
+      "assertions": [
+        {
+          "name": "Status code is 409",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /reviews/{id} - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /reviews/{id} - missing review - error (404)",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Status code is 404",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /classes/{classId}/reviews - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /classes/{classId}/reviews - missing class - error (404)",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Status code is 404",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /reviews/{id} - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /reviews/{id} - duplicate tags - error (400)",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Status code is 400",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "DELETE /reviews/{id} - success (204)",
+      "status": 204,
+      "assertions": [
+        {
+          "name": "Status code is 204",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "DELETE /reviews/{id} - already deleted - error (404)",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Status code is 404",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /users/{userId}/personal-records - success (201)",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Status code is 201",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "POST /users/{userId}/personal-records - incomplete - error (400)",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Status code is 400",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /users/{userId}/personal-records - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /users/{userId}/personal-records - other user - error (403)",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Status code is 403",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /personal-records/{id} - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /personal-records/{id} - missing record - error (404)",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Status code is 404",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /personal-records/{id} - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "PATCH /personal-records/{id} - invalid date - error (400)",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Status code is 400",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "DELETE /personal-records/{id} - success (204)",
+      "status": 204,
+      "assertions": [
+        {
+          "name": "Status code is 204",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "DELETE /personal-records/{id} - already deleted - error (404)",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Status code is 404",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /users/{userId}/progress - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /users/{userId}/progress - other user - error (403)",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Status code is 403",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /reports/sales - admin - success (200)",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Status code is 200",
+          "passed": true
+        },
+        {
+          "name": "Body contains data",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "GET /reports/sales - invalid date - error (400)",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Status code is 400",
+          "passed": true
+        },
+        {
+          "name": "Body contains an error message",
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#e6ca3f" />
+    <title>Ventas y reportes · FitPulse</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+    <script type="module" src="/js/admin-sales.js"></script>
+  </head>
+  <body data-role="admin">
+    <a class="skip-link" href="#main-content">Ir al contenido</a>
+    <header class="app-header" id="app-header"></header>
+    <aside class="sidebar" id="sidebar" aria-label="Menú principal"></aside>
+    <main class="app-main" id="main-content">
+      <section class="page-heading" aria-labelledby="page-title">
+        <h1 id="page-title">Ventas y reportes</h1>
+      </section>
+      <div
+        id="page-status"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+      <section class="summary-grid" aria-label="Resumen de ventas del día">
+        <article class="summary-card">
+          <strong>Ventas de hoy:</strong><span id="sales-total">—</span>
+        </article>
+        <article class="summary-card">
+          <strong>Paquetes vendidos:</strong><span id="sales-count">—</span>
+        </article>
+        <article class="summary-card">
+          <strong>Paquete más vendido:</strong><span id="best-seller">—</span>
+        </article>
+      </section>
+      <section class="surface" aria-labelledby="history-title">
+        <h2 class="section-title" id="history-title">
+          Historial de transacciones
+        </h2>
+        <table class="data-table">
+          <caption class="visually-hidden">
+            Compras de paquetes realizadas por los clientes
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Cliente</th>
+              <th scope="col">Correo</th>
+              <th scope="col">Paquete</th>
+              <th scope="col">Precio</th>
+            </tr>
+          </thead>
+          <tbody id="purchase-rows"></tbody>
+        </table>
+        <p class="empty-state" id="purchase-empty" hidden>
+          Todavía no se han registrado compras.
+        </p>
+        <div class="table-footer">
+          <button class="button button-small" id="previous-page" type="button">
+            Anterior
+          </button>
+          <span class="page-label" id="page-label"></span>
+          <button class="button button-small" id="next-page" type="button">
+            Siguiente
+          </button>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

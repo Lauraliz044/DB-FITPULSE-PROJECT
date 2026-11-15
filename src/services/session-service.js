@@ -5,6 +5,7 @@ const { transaction } = require('../config/database');
 const settings = require('../config/settings');
 const { utcDate } = require('../utils/time');
 const { fail } = require('../utils/errors');
+const { verifyPassword } = require('../utils/passwords');
 
 async function create(body) {
   const data = userService.credentials(body);
@@ -16,7 +17,7 @@ async function create(body) {
     if (user.locked_until && utcDate(user.locked_until) > now) {
       return { status: 423, message: 'Account is temporarily locked' };
     }
-    if (user.password !== data.password) {
+    if (!await verifyPassword(data.password, user.password)) {
       const oldAttempts = user.locked_until ? 0 : user.failed_login_attempts;
       const attempts = oldAttempts + 1;
       const locked = attempts >= settings.maxLoginAttempts;

@@ -1,0 +1,76 @@
+.auth-page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+  background:
+    linear-gradient(rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.55)),
+    url("/assets/gym.jpg") center / cover no-repeat fixed;
+}
+.auth-card {
+  width: min(400px, 100%);
+  padding: 22px 34px 24px;
+  border: 9px solid var(--color-cream);
+  border-radius: 18px;
+  background: #fff;
+}
+.auth-card-wide {
+  width: min(460px, 100%);
+}
+.auth-welcome {
+  font-size: 30px;
+  font-weight: 400;
+  text-align: center;
+}
+.auth-card .wordmark {
+  display: block;
+  margin-bottom: 30px;
+  font-size: 64px;
+  text-align: center;
+}
+.auth-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-size: 30px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.auth-title .wordmark {
+  display: inline;
+  margin: 0;
+  font-size: 44px;
+}
+.auth-form {
+  display: grid;
+  gap: 14px;
+}
+.auth-form .alert {
+  margin-bottom: 4px;
+}
+.auth-actions {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  font-size: 14px;
+}
+.auth-actions-start {
+  justify-items: start;
+}
+.auth-actions .button-submit {
+  min-width: 158px;
+  margin-bottom: 4px;
+}
+.auth-link {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-yellow);
+  color: var(--color-black);
+  font-size: 14px;
+}
+.auth-link:hover {
+  background: var(--color-yellow-deep);
+}

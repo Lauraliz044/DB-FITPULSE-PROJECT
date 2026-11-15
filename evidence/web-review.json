@@ -1,0 +1,79 @@
+{
+  "runner": "Revisión manual con CUA en Chromium, DOM y capturas del navegador",
+  "executedAt": "2026-11-15T03:48:12.022367+00:00",
+  "passed": true,
+  "fixtureNote": "Cuenta y base MySQL fitpulse_seven_ui_test sintéticas locales. La sesión de revisión fue preparada por un arnés externo al repositorio, usando el servicio real de login. El 503 fue una respuesta controlada de ese arnés. Ninguna ruta /__qa forma parte del código publicado.",
+  "reference": "Capturas de Mi progreso y login/registro aportadas por la usuaria el 15 de noviembre de 2026 (UTC).",
+  "cases": [
+    {
+      "name": "visual_reference",
+      "observation": "Se compararon las capturas aportadas: encabezado amarillo, navegación negra, tarjetas claras, calendario, gráfico circular y resumen de marcas.",
+      "passed": true
+    },
+    {
+      "name": "access_controls",
+      "observation": "Se revisaron login y registro, incluida la confirmación de contraseña visible al registrar; no se introdujeron credenciales en el navegador.",
+      "passed": true
+    },
+    {
+      "name": "progress",
+      "observation": "La cuenta sintética mostró 7 asistencias, racha de 6 semanas y 3 categorías desde MySQL.",
+      "passed": true
+    },
+    {
+      "name": "calendar_navigation",
+      "observation": "La semana del 9 al 15 de noviembre marcó el miércoles 11; la semana anterior marcó martes 3 y viernes 6. La navegación volvió a la semana actual y desactivó avanzar.",
+      "passed": true
+    },
+    {
+      "name": "category_pie",
+      "observation": "La leyenda mostró yoga 3 (42,9 %), spinning 2 (28,6 %) y crossfit 2 (28,6 %). El redondeo explica la suma visible 100,1 %.",
+      "passed": true
+    },
+    {
+      "name": "summary_navigation",
+      "observation": "Editar en el resumen abrió Mis marcas y conservó la sesión.",
+      "passed": true
+    },
+    {
+      "name": "create",
+      "observation": "Se creó Prueba visual amarilla con 60 kg y la lista pasó de 6 a 7 registros.",
+      "passed": true
+    },
+    {
+      "name": "update",
+      "observation": "La marca se modificó a 65 kg y la tabla mostró el resultado actualizado.",
+      "passed": true
+    },
+    {
+      "name": "summary_refresh",
+      "observation": "Al regresar a Mi progreso, el resumen mostró Prueba visual amarilla: 65 kg con la fecha de la marca.",
+      "passed": true
+    },
+    {
+      "name": "delete",
+      "observation": "La eliminación mostró confirmación con el nombre correcto; confirmarla retiró la marca y la lista volvió a 6 registros.",
+      "passed": true
+    },
+    {
+      "name": "empty",
+      "observation": "Una cuenta sin datos mostró calendario sin asistencias, cero totales y mensajes propios para categorías y marcas vacías.",
+      "passed": true
+    },
+    {
+      "name": "retry",
+      "observation": "Un 503 controlado del arnés mostró error y Volver a intentar; al pulsarlo se recuperó el progreso.",
+      "passed": true
+    },
+    {
+      "name": "expired",
+      "observation": "Un JWT sintético vencido retiró los datos, mostró Tu sesión venció y ofreció Iniciar sesión.",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Registro, login y migración se verificaron con pruebas HTTP y de comandos; no se introdujeron credenciales manualmente en el navegador.",
+    "No se probó una tablet física ni una emulación móvil. El CSS implementa adaptación por ancho.",
+    "La referencia visual son las capturas recibidas; no se inspeccionó directamente el archivo editable de Figma."
+  ]
+}

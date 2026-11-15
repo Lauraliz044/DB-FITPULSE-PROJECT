@@ -1,0 +1,13 @@
+-- Select the intended schema in Workbench before executing this read-only file.
+SELECT DATABASE() AS selected_database, VERSION() AS mysql_version;
+SELECT TABLE_NAME AS table_name, COLUMN_NAME AS column_name,
+       COLUMN_TYPE AS column_type, IS_NULLABLE AS is_nullable,
+       COLUMN_DEFAULT AS column_default, COLUMN_KEY AS column_key, EXTRA AS extra
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+ORDER BY TABLE_NAME, ORDINAL_POSITION;
+SELECT TABLE_NAME AS child_table, COLUMN_NAME AS child_column,
+       REFERENCED_TABLE_NAME AS parent_table, REFERENCED_COLUMN_NAME AS parent_column
+FROM information_schema.KEY_COLUMN_USAGE
+WHERE TABLE_SCHEMA = DATABASE() AND REFERENCED_TABLE_NAME IS NOT NULL
+ORDER BY TABLE_NAME, CONSTRAINT_NAME;

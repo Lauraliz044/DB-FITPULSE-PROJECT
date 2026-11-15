@@ -1,0 +1,508 @@
+{
+  "source": "Live MySQL information_schema after database/schema.sql",
+  "executedAt": "2026-11-15T03:45:37.789Z",
+  "mysqlVersion": "8.4.13",
+  "tables": [
+    "packages",
+    "personal_records",
+    "purchases",
+    "reservations",
+    "reviews",
+    "scheduled_classes",
+    "users"
+  ],
+  "columns": [
+    {
+      "tableName": "packages",
+      "columnName": "idpackages",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "PRI",
+      "extra": "auto_increment"
+    },
+    {
+      "tableName": "packages",
+      "columnName": "name",
+      "columnType": "varchar(45)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "packages",
+      "columnName": "price",
+      "columnType": "decimal(10,2)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "packages",
+      "columnName": "class_quantity",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "packages",
+      "columnName": "description",
+      "columnType": "text",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "personal_records",
+      "columnName": "idrecord",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "PRI",
+      "extra": "auto_increment"
+    },
+    {
+      "tableName": "personal_records",
+      "columnName": "user_id",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "MUL",
+      "extra": ""
+    },
+    {
+      "tableName": "personal_records",
+      "columnName": "exercise",
+      "columnType": "varchar(120)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "personal_records",
+      "columnName": "record_type",
+      "columnType": "varchar(45)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "personal_records",
+      "columnName": "value",
+      "columnType": "decimal(12,3)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "personal_records",
+      "columnName": "unit",
+      "columnType": "varchar(45)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "personal_records",
+      "columnName": "achieved_on",
+      "columnType": "date",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "purchases",
+      "columnName": "idpurchase",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "PRI",
+      "extra": "auto_increment"
+    },
+    {
+      "tableName": "purchases",
+      "columnName": "paid_price",
+      "columnType": "decimal(10,2)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "purchases",
+      "columnName": "purchased_at",
+      "columnType": "datetime",
+      "nullable": "NO",
+      "defaultValue": "CURRENT_TIMESTAMP",
+      "columnKey": "",
+      "extra": "DEFAULT_GENERATED"
+    },
+    {
+      "tableName": "purchases",
+      "columnName": "idusers",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "MUL",
+      "extra": ""
+    },
+    {
+      "tableName": "purchases",
+      "columnName": "idpackages",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "MUL",
+      "extra": ""
+    },
+    {
+      "tableName": "reservations",
+      "columnName": "idreservation",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "PRI",
+      "extra": "auto_increment"
+    },
+    {
+      "tableName": "reservations",
+      "columnName": "user_id",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "MUL",
+      "extra": ""
+    },
+    {
+      "tableName": "reservations",
+      "columnName": "class_id",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "MUL",
+      "extra": ""
+    },
+    {
+      "tableName": "reservations",
+      "columnName": "created_at",
+      "columnType": "datetime",
+      "nullable": "NO",
+      "defaultValue": "CURRENT_TIMESTAMP",
+      "columnKey": "",
+      "extra": "DEFAULT_GENERATED"
+    },
+    {
+      "tableName": "reservations",
+      "columnName": "status",
+      "columnType": "varchar(10)",
+      "nullable": "NO",
+      "defaultValue": "reserved",
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "reviews",
+      "columnName": "idreview",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "PRI",
+      "extra": "auto_increment"
+    },
+    {
+      "tableName": "reviews",
+      "columnName": "rating",
+      "columnType": "tinyint",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "reviews",
+      "columnName": "comment",
+      "columnType": "text",
+      "nullable": "YES",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "reviews",
+      "columnName": "tags",
+      "columnType": "json",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "reviews",
+      "columnName": "created_at",
+      "columnType": "datetime",
+      "nullable": "NO",
+      "defaultValue": "CURRENT_TIMESTAMP",
+      "columnKey": "",
+      "extra": "DEFAULT_GENERATED"
+    },
+    {
+      "tableName": "reviews",
+      "columnName": "updated_at",
+      "columnType": "datetime",
+      "nullable": "NO",
+      "defaultValue": "CURRENT_TIMESTAMP",
+      "columnKey": "",
+      "extra": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+    },
+    {
+      "tableName": "reviews",
+      "columnName": "iduser",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "MUL",
+      "extra": ""
+    },
+    {
+      "tableName": "reviews",
+      "columnName": "idclass",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "MUL",
+      "extra": ""
+    },
+    {
+      "tableName": "reviews",
+      "columnName": "intensity",
+      "columnType": "varchar(10)",
+      "nullable": "YES",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "scheduled_classes",
+      "columnName": "idscheduled_classes",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "PRI",
+      "extra": "auto_increment"
+    },
+    {
+      "tableName": "scheduled_classes",
+      "columnName": "name",
+      "columnType": "varchar(45)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "scheduled_classes",
+      "columnName": "instructor_name",
+      "columnType": "varchar(45)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "scheduled_classes",
+      "columnName": "category",
+      "columnType": "varchar(45)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "scheduled_classes",
+      "columnName": "price",
+      "columnType": "decimal(10,2)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "scheduled_classes",
+      "columnName": "capacity",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "scheduled_classes",
+      "columnName": "starts_at",
+      "columnType": "datetime",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "scheduled_classes",
+      "columnName": "ends_at",
+      "columnType": "datetime",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "scheduled_classes",
+      "columnName": "description",
+      "columnType": "text",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "users",
+      "columnName": "idusers",
+      "columnType": "int",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "PRI",
+      "extra": "auto_increment"
+    },
+    {
+      "tableName": "users",
+      "columnName": "name",
+      "columnType": "varchar(45)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "users",
+      "columnName": "email",
+      "columnType": "varchar(254)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "UNI",
+      "extra": ""
+    },
+    {
+      "tableName": "users",
+      "columnName": "password",
+      "columnType": "varchar(255)",
+      "nullable": "NO",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "users",
+      "columnName": "role",
+      "columnType": "varchar(10)",
+      "nullable": "NO",
+      "defaultValue": "client",
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "users",
+      "columnName": "status",
+      "columnType": "varchar(10)",
+      "nullable": "NO",
+      "defaultValue": "active",
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "users",
+      "columnName": "registered_at",
+      "columnType": "datetime",
+      "nullable": "NO",
+      "defaultValue": "CURRENT_TIMESTAMP",
+      "columnKey": "",
+      "extra": "DEFAULT_GENERATED"
+    },
+    {
+      "tableName": "users",
+      "columnName": "failed_login_attempts",
+      "columnType": "int unsigned",
+      "nullable": "NO",
+      "defaultValue": "0",
+      "columnKey": "",
+      "extra": ""
+    },
+    {
+      "tableName": "users",
+      "columnName": "locked_until",
+      "columnType": "datetime",
+      "nullable": "YES",
+      "defaultValue": null,
+      "columnKey": "",
+      "extra": ""
+    }
+  ],
+  "foreignKeys": [
+    {
+      "tableName": "personal_records",
+      "columnName": "user_id",
+      "constraintName": "fk_records_user",
+      "referencedTable": "users",
+      "referencedColumn": "idusers"
+    },
+    {
+      "tableName": "purchases",
+      "columnName": "idpackages",
+      "constraintName": "fk_purchases_package",
+      "referencedTable": "packages",
+      "referencedColumn": "idpackages"
+    },
+    {
+      "tableName": "purchases",
+      "columnName": "idusers",
+      "constraintName": "fk_purchases_user",
+      "referencedTable": "users",
+      "referencedColumn": "idusers"
+    },
+    {
+      "tableName": "reservations",
+      "columnName": "class_id",
+      "constraintName": "fk_reservations_class",
+      "referencedTable": "scheduled_classes",
+      "referencedColumn": "idscheduled_classes"
+    },
+    {
+      "tableName": "reservations",
+      "columnName": "user_id",
+      "constraintName": "fk_reservations_user",
+      "referencedTable": "users",
+      "referencedColumn": "idusers"
+    },
+    {
+      "tableName": "reviews",
+      "columnName": "idclass",
+      "constraintName": "fk_reviews_class",
+      "referencedTable": "scheduled_classes",
+      "referencedColumn": "idscheduled_classes"
+    },
+    {
+      "tableName": "reviews",
+      "columnName": "iduser",
+      "constraintName": "fk_reviews_user",
+      "referencedTable": "users",
+      "referencedColumn": "idusers"
+    }
+  ]
+}

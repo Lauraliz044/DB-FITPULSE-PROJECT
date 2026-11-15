@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#e6ca3f" />
+    <title>Mis reservas · FitPulse</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/class-card.css" />
+    <link rel="stylesheet" href="/css/reservations.css" />
+    <script type="module" src="/js/reservations.js"></script>
+  </head>
+  <body data-role="client">
+    <a class="skip-link" href="#main-content">Ir al contenido</a>
+    <header class="app-header" id="app-header"></header>
+    <aside class="sidebar" id="sidebar" aria-label="Menú principal"></aside>
+    <main class="app-main" id="main-content">
+      <section class="page-heading" aria-labelledby="page-title">
+        <h1 id="page-title">Mis reservas</h1>
+      </section>
+      <div class="stat-strip" id="page-stats" aria-label="Resumen"></div>
+      <div class="tab-list" role="tablist" aria-label="Tipo de reservas">
+        <button
+          class="tab"
+          id="upcoming-tab"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          aria-controls="reservation-grid"
+        >
+          Próximas
+        </button>
+        <button
+          class="tab"
+          id="history-tab"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="reservation-grid"
+        >
+          Historial
+        </button>
+      </div>
+      <div
+        id="page-status"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+      <div
+        class="reservation-grid"
+        id="reservation-grid"
+        role="tabpanel"
+        aria-labelledby="upcoming-tab"
+      ></div>
+    </main>
+  </body>
+</html>

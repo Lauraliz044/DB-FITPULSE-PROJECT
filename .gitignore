@@ -2,3 +2,11 @@ node_modules/
 .env
 .env.test
 *.log
+# Generated LaTeX auxiliary files
+*.aux
+*.bbl
+*.blg
+*.out
+*.toc
+*.fls
+*.fdb_latexmk

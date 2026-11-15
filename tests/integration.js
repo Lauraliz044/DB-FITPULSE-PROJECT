@@ -8,6 +8,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const app = require('../src/app');
+const { hashPassword, verifyPassword, isPasswordHash } = require('../src/utils/passwords');
+const { migratePasswords } = require('../src/services/password-migration-service');
 const values = { admin: 'admin', client: 'client', active: 'active' };
 const { checkSchema } = require('../src/config/schema');
 const { pool, query } = require('../src/config/database');
@@ -102,8 +104,35 @@ async function run() {
   baseUrl = `http://127.0.0.1:${server.address().port}`;
   const adminEmail = `admin${runId}@fitpulse.example`;
   const password = process.env.ADMIN_PASSWORD;
+  const administratorHash = await hashPassword(password);
   await query('INSERT INTO users (name, email, `password`, role, status) VALUES (?, ?, ?, ?, ?)',
-    ['Demo Admin', adminEmail, password, values.admin, values.active]);
+    ['Demo Admin', adminEmail, administratorHash, values.admin, values.active]);
+  const legacyEmail = `legacy${runId}@fitpulse.example`;
+  const legacyUser = await query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
+    ['Legacy Client', legacyEmail, password]);
+  await call('POST', '/sessions', { email: legacyEmail, password }, null,
+    401, 'Plain-text storage cannot authenticate before migration');
+  const [beforeMigration] = await query('SELECT * FROM users WHERE idusers = ?',
+    [legacyUser.insertId]);
+  const migration = await migratePasswords();
+  verify(migration.migrated >= 1, 'Existing plain-text credentials must be migrated');
+  const [afterMigration] = await query('SELECT * FROM users WHERE idusers = ?',
+    [legacyUser.insertId]);
+  verify(isPasswordHash(afterMigration.password), 'Migration must persist an Argon2id hash');
+  verify(await verifyPassword(password, afterMigration.password),
+    'Migration must preserve the original password');
+  const { password: oldPassword, ...originalMetadata } = beforeMigration;
+  const { password: newPassword, ...migratedMetadata } = afterMigration;
+  verify(oldPassword !== newPassword, 'The database must no longer store the original password');
+  assert.deepEqual(migratedMetadata, originalMetadata);
+  assertions += 1;
+  const [unchangedAdministrator] = await query('SELECT password FROM users WHERE email = ?',
+    [adminEmail]);
+  verify(unchangedAdministrator.password === administratorHash,
+    'Migration must not hash existing Argon2id values again');
+  verify((await migratePasswords()).migrated === 0, 'Repeated migration must be idempotent');
+  await call('POST', '/sessions', { email: legacyEmail, password }, null,
+    201, 'Migrated client can log in with the original password');
   const session = await call('POST', '/sessions', { email: adminEmail, password }, null,
     201, 'Administrator session');
   const admin = session.accessToken;
@@ -112,6 +141,14 @@ async function run() {
   const client = await call('POST', '/users', {
     name: 'Demo Client', email: `client${runId}@fitpulse.example`, password
   }, null, 201, 'Registration');
+  const [storedClient] = await query('SELECT password FROM users WHERE idusers = ?', [client.id]);
+  verify(isPasswordHash(storedClient.password) && storedClient.password !== password,
+    'Registration must persist a hash instead of plain text');
+  verify(await verifyPassword(password, storedClient.password),
+    'The registration hash must verify against the complete input');
+  verify(storedClient.password.split('$')[4] !== administratorHash.split('$')[4],
+    'Accounts sharing a password must receive independent salts');
+  verify(!('password' in client), 'Registration must not return the password or its hash');
   await call('POST', '/users', { name: 'Demo', email: 'bad', password: 'short' }, null,
     400, 'Invalid registration');
   await call('POST', '/users', { name: 'x'.repeat(46),
@@ -123,6 +160,8 @@ async function run() {
   const clientSession = await call('POST', '/sessions', { email: client.email, password },
     null, 201, 'Client session');
   const token = clientSession.accessToken;
+  await call('POST', '/sessions', { email: client.email, password: storedClient.password },
+    null, 401, 'The stored hash itself cannot authenticate');
   verify(!('password' in clientSession.user), 'Password must not be returned');
   await call('GET', '/users', undefined, admin, 200, 'User list');
   await call('GET', '/users', undefined, token, 403, 'Client cannot list users');
@@ -162,6 +201,17 @@ async function run() {
   await call('GET', '/packages', undefined, token, 200, 'Package catalog');
   await call('GET', '/packages?limit=0', undefined, token, 400, 'Invalid package pagination');
   await call('GET', `/packages/${bundle.id}`, undefined, token, 200, 'Package details');
+  await call('POST', '/packages', { name: 'Forbidden', classQuantity: 1,
+    price: 1, description: 'Permission fixture' }, token, 403,
+    'Client cannot create package');
+  await call('PATCH', `/packages/${bundle.id}`, { price: 1 }, token, 403,
+    'Client cannot update package');
+  await call('DELETE', `/packages/${bundle.id}`, undefined, token, 403,
+    'Client cannot delete package');
+  await call('PATCH', `/classes/${item.id}`, { capacity: 1 }, token, 403,
+    'Client cannot update class');
+  await call('DELETE', `/classes/${item.id}`, undefined, token, 403,
+    'Client cannot delete class');
   await call('GET', '/packages/2147483647', undefined, token, 404, 'Missing package');
   await call('PATCH', `/packages/${bundle.id}`, { price: 125000 }, admin,
     200, 'Update package');
@@ -373,6 +423,21 @@ async function run() {
   const docs = await fetch(`${baseUrl}/docs/`);
   verify(docs.status === 200 && (await docs.text()).includes('swagger-ui'),
     'Interactive Swagger must be served');
+  for (const [route, title] of [['/progress.html', 'Mi progreso'],
+    ['/personal-records.html', 'Mis marcas']]) {
+    const page = await fetch(`${baseUrl}${route}`);
+    verify(page.status === 200 && (await page.text()).includes(`${title} · FitPulse`),
+      'The client page must be served by the same application');
+    verify(page.headers.get('content-security-policy').includes("script-src 'self'"),
+      'Client pages must restrict scripts to the application origin');
+  }
+  const clientConfiguration = await (await fetch(`${baseUrl}/app-config.json`)).json();
+  verify(clientConfiguration.apiPrefix === '/api/v1' &&
+    clientConfiguration.timeZone === 'America/Bogota' &&
+    Object.keys(clientConfiguration).length === 2,
+  'Browser configuration must contain only the API prefix and business time zone');
+  const privateFile = await fetch(`${baseUrl}/.env`);
+  verify(privateFile.status === 404, 'Environment files must not be served');
   const coverage = [];
   for (const [route, methods] of Object.entries(spec.paths)) {
     const pattern = new RegExp(`^${route.replace(/\{\w+\}/g, '[0-9]+')}$`);

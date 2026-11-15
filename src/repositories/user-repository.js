@@ -34,4 +34,17 @@ async function updateAttempts(userId, attempts, lockedUntil, connection) {
     [attempts, lockedUntil, userId], connection);
 }
 
-module.exports = { create, findById, list, updateStatus, findCredentials, updateAttempts };
+async function listPasswords(connection) {
+  return query('SELECT idusers AS id, password FROM users ORDER BY idusers FOR UPDATE',
+    [], connection);
+}
+
+async function updatePassword(userId, passwordHash, connection) {
+  await query('UPDATE users SET password = ? WHERE idusers = ?',
+    [passwordHash, userId], connection);
+}
+
+module.exports = {
+  create, findById, list, updateStatus, findCredentials, updateAttempts,
+  listPasswords, updatePassword
+};

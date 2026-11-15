@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "assertions": 5,
+  "cases": [
+    "Fresh seven-table schema accepted",
+    "Missing login column rejected before serving requests",
+    "Extra mandatory legacy column rejected",
+    "Missing automatic record identifier rejected",
+    "Missing seventh table rejected"
+  ],
+  "executedAt": "2026-11-15T03:45:33.851Z",
+  "fixtureNote": "A newly created isolated test database is removed after this run."
+}

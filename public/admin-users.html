@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#e6ca3f" />
+    <title>Gestión de usuarios · FitPulse</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+    <script type="module" src="/js/admin-users.js"></script>
+  </head>
+  <body data-role="admin">
+    <a class="skip-link" href="#main-content">Ir al contenido</a>
+    <header class="app-header" id="app-header"></header>
+    <aside class="sidebar" id="sidebar" aria-label="Menú principal"></aside>
+    <main class="app-main" id="main-content">
+      <section class="page-heading" aria-labelledby="page-title">
+        <div>
+          <h1 id="page-title">Gestión de usuarios</h1>
+          <p class="page-subtitle">
+            Listado de clientes registrados y estado de sus cuentas.
+          </p>
+        </div>
+      </section>
+      <div class="stat-strip" id="page-stats" aria-label="Resumen"></div>
+      <div
+        id="page-status"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+      <section class="surface" aria-labelledby="clients-title">
+        <h2 class="section-title" id="clients-title">Clientes registrados</h2>
+        <table class="data-table">
+          <caption class="visually-hidden">
+            Clientes registrados y estado de sus cuentas
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Cliente</th>
+              <th scope="col">Cuenta</th>
+              <th scope="col">Registro</th>
+              <th scope="col">Estado</th>
+            </tr>
+          </thead>
+          <tbody id="client-rows"></tbody>
+        </table>
+        <p class="empty-state" id="client-empty" hidden>
+          Todavía no hay clientes registrados.
+        </p>
+        <div class="table-footer">
+          <button class="button button-small" id="previous-page" type="button">
+            Anterior
+          </button>
+          <span class="page-label" id="page-label"></span>
+          <button class="button button-small" id="next-page" type="button">
+            Siguiente
+          </button>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

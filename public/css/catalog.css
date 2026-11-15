@@ -1,0 +1,33 @@
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.filter-chip select {
+  min-width: 150px;
+  padding: 6px 16px;
+  border: 3px solid #cfcfcf;
+  border-radius: var(--radius);
+  background: var(--color-cream);
+  font-size: 16px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 28px;
+}
+.class-grid > .loading-state,
+.class-grid > .empty-state {
+  grid-column: 1 / -1;
+}
+.class-item {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+.class-item > .button {
+  min-width: 130px;
+}

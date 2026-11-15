@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Registra lo que hoy lograste. Vuelve a tus marcas, observa tu evolución y define tu siguiente paso."
+    />
+    <meta name="theme-color" content="#e6ca3f" />
+    <title>Mis marcas · FitPulse</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/progress.css" />
+    <script type="module" src="/js/records.js"></script>
+  </head>
+  <body data-role="client" data-menu="/progress.html">
+    <a class="skip-link" href="#main-content">Ir al contenido</a>
+    <header class="app-header" id="app-header"></header>
+    <aside class="sidebar" id="sidebar" aria-label="Menú principal"></aside>
+    <main class="app-main" id="main-content">
+      <section class="page-heading" aria-labelledby="page-title">
+        <div>
+          <h1 id="page-title">Mis marcas personales</h1>
+          <p class="page-subtitle">
+            Registra tus resultados y consulta cómo avanzas en cada ejercicio
+          </p>
+        </div>
+        <div class="page-actions">
+          <button class="button" id="new-record-button" type="button">
+            <span data-icon="plus"></span><span>Nueva marca</span>
+          </button>
+        </div>
+      </section>
+      <div
+        id="page-status"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+      <button
+        class="button button-small retry"
+        id="retry-button"
+        type="button"
+        hidden
+      >
+        Volver a intentar
+      </button>
+      <div id="page-data" hidden>
+        <section class="stats-grid" aria-label="Resumen de marcas personales">
+          <article class="stat">
+            <span class="stat-label">Marcas registradas</span
+            ><span class="stat-symbol" data-icon="record"></span
+            ><strong class="stat-value" id="records-count">—</strong
+            ><span class="stat-detail">Tu historial de entrenamiento</span>
+          </article>
+          <article class="stat">
+            <span class="stat-label">Ejercicios diferentes</span
+            ><span class="stat-symbol" data-icon="pulse"></span
+            ><strong class="stat-value" id="exercises-count">—</strong
+            ><span class="stat-detail">Cada ejercicio tiene su recorrido</span>
+          </article>
+          <article class="stat">
+            <span class="stat-label">Último registro</span
+            ><span class="stat-symbol" data-icon="calendar"></span
+            ><strong class="stat-value" id="latest-record">—</strong
+            ><span class="stat-detail" id="latest-record-detail"
+              >Fecha de tu marca más reciente</span
+            >
+          </article>
+        </section>
+        <section class="panel" aria-labelledby="records-heading">
+          <div class="panel-header">
+            <div>
+              <h2 id="records-heading">Registro de marcas personales</h2>
+              <p class="panel-subtitle">
+                Consulta, modifica o elimina tus registros personales
+              </p>
+            </div>
+            <button
+              class="button button-secondary button-small"
+              id="refresh-button"
+              type="button"
+            >
+              <span data-icon="refresh"></span>Actualizar
+            </button>
+          </div>
+          <div class="records-toolbar">
+            <label class="search"
+              ><span class="visually-hidden">Buscar ejercicio</span
+              ><input
+                id="search-records"
+                type="search"
+                placeholder="Buscar un ejercicio…"
+                maxlength="120" /></label
+            ><label class="visually-hidden" for="type-filter"
+              >Filtrar por tipo</label
+            ><select id="type-filter">
+              <option value="">Todos los tipos</option></select
+            ><label class="visually-hidden" for="sort-records"
+              >Orden de los registros</label
+            ><select id="sort-records">
+              <option value="recent">Más recientes</option>
+              <option value="oldest">Más antiguos</option>
+              <option value="exercise">Por ejercicio</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table id="records-table">
+              <caption class="visually-hidden">
+                Marcas personales de tu cuenta
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Ejercicio</th>
+                  <th scope="col">Tipo de marca</th>
+                  <th scope="col">Resultado</th>
+                  <th scope="col">Fecha</th>
+                  <th scope="col">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="records-body"></tbody>
+            </table>
+          </div>
+          <div id="records-empty" class="empty" hidden></div>
+          <p id="table-count" class="table-count"></p>
+        </section>
+        <div class="record-lower">
+          <section class="panel" aria-labelledby="trend-heading">
+            <div class="panel-header">
+              <div>
+                <h2 id="trend-heading">Un ejercicio, tu evolución</h2>
+                <p class="panel-subtitle">
+                  Últimos seis registros del mismo tipo y unidad
+                </p>
+              </div>
+            </div>
+            <label class="visually-hidden" for="trend-filter"
+              >Ejercicio, tipo y unidad del gráfico</label
+            ><select id="trend-filter" class="trend-select"></select>
+            <div id="trend-chart"></div>
+          </section>
+          <section class="panel tips-panel">
+            <p class="tip-caption">DALE CONTEXTO A TU ESFUERZO</p>
+            <h2>Compara tus marcas con la misma unidad.</h2>
+            <p>
+              Registra el ejercicio, el resultado y la fecha. Para seguir tu
+              evolución, compara peso con peso, distancia con distancia y tiempo
+              con tiempo.
+            </p>
+            <p>Tu historial es personal: tú decides qué avances guardar.</p>
+          </section>
+        </div>
+      </div>
+    </main>
+    <dialog
+      class="form-dialog"
+      id="record-dialog"
+      aria-labelledby="record-heading"
+    ></dialog>
+    <dialog
+      class="form-dialog"
+      id="delete-dialog"
+      aria-labelledby="delete-heading"
+    ></dialog>
+  </body>
+</html>

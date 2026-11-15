@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Mira tu constancia, descubre qué actividades practicas y sigue avanzando a tu ritmo."
+    />
+    <meta name="theme-color" content="#e6ca3f" />
+    <title>Mi progreso · FitPulse</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/progress.css" />
+    <script type="module" src="/js/progress.js"></script>
+  </head>
+  <body data-role="client">
+    <a class="skip-link" href="#main-content">Ir al contenido</a>
+    <header class="app-header" id="app-header"></header>
+    <aside class="sidebar" id="sidebar" aria-label="Menú principal"></aside>
+    <main class="app-main" id="main-content">
+      <section class="page-heading" aria-labelledby="page-title">
+        <div>
+          <h1 id="page-title">Mi progreso</h1>
+          <p class="page-subtitle">
+            Monitorea tus estadísticas, rendimiento y marcas personales
+          </p>
+        </div>
+        <div class="page-actions">
+          <button
+            class="button button-secondary button-small"
+            id="refresh-button"
+            type="button"
+          >
+            <span data-icon="refresh"></span><span>Actualizar</span>
+          </button>
+        </div>
+      </section>
+      <div
+        id="page-status"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+      <button
+        class="button button-small retry"
+        id="retry-button"
+        type="button"
+        hidden
+      >
+        Volver a intentar
+      </button>
+      <div id="page-data" hidden>
+        <section class="stats-grid" aria-label="Resumen de progreso">
+          <article class="stat">
+            <span class="stat-label">Clases asistidas</span
+            ><span class="stat-symbol" data-icon="check"></span
+            ><strong class="stat-value" id="total-attended">—</strong
+            ><span class="stat-detail">Con asistencia confirmada</span>
+          </article>
+          <article class="stat">
+            <span class="stat-label">Tu racha actual</span
+            ><span class="stat-symbol" data-icon="pulse"></span
+            ><strong class="stat-value" id="weekly-streak">—</strong
+            ><span class="stat-detail">Semanas consecutivas</span>
+          </article>
+          <article class="stat">
+            <span class="stat-label">Categorías practicadas</span
+            ><span class="stat-symbol" data-icon="record"></span
+            ><strong class="stat-value" id="category-count">—</strong
+            ><span class="stat-detail">Variedad en tu entrenamiento</span>
+          </article>
+        </section>
+        <div class="content-grid progress-grid">
+          <section
+            class="panel calendar-panel"
+            aria-labelledby="activity-heading"
+          >
+            <div class="panel-header">
+              <h2 id="activity-heading">Calendario de racha</h2>
+              <span data-icon="calendar"></span>
+            </div>
+            <p class="panel-subtitle">Tus días con asistencia confirmada</p>
+            <div class="calendar-navigation">
+              <button
+                class="icon-button"
+                id="previous-week"
+                type="button"
+                aria-label="Semana anterior"
+              >
+                ‹
+              </button>
+              <strong id="calendar-week">Esta semana</strong>
+              <button
+                class="icon-button"
+                id="next-week"
+                type="button"
+                aria-label="Semana siguiente"
+                disabled
+              >
+                ›
+              </button>
+            </div>
+            <div id="activity-chart"></div>
+            <p class="calendar-key">
+              <span class="legend-dot"></span> Día asistido
+              <span class="today-key"></span> Hoy
+            </p>
+          </section>
+          <section class="panel" aria-labelledby="category-heading">
+            <div class="panel-header">
+              <h2 id="category-heading">Gráfico de categorías</h2>
+              <span data-icon="chart"></span>
+            </div>
+            <p class="panel-subtitle">Distribución de tus clases asistidas</p>
+            <div id="category-list" class="category-list"></div>
+          </section>
+        </div>
+        <section
+          class="panel records-summary"
+          aria-labelledby="summary-heading"
+        >
+          <div>
+            <h2 id="summary-heading">Registro de marcas personales</h2>
+            <div id="records-summary"></div>
+          </div>
+          <a class="button" href="/personal-records.html"
+            >Editar <span data-icon="edit"></span
+          ></a>
+        </section>
+        <div class="bottom-grid">
+          <section class="panel" aria-labelledby="history-heading">
+            <div class="panel-header">
+              <div>
+                <h2 id="history-heading">Tus últimas clases</h2>
+                <p class="panel-subtitle">
+                  Las cinco asistencias más recientes
+                </p>
+              </div>
+              <span class="badge">Historial personal</span>
+            </div>
+            <div id="attended-list" class="history-list"></div>
+          </section>
+          <section class="panel" aria-labelledby="upcoming-heading">
+            <div class="panel-header">
+              <div>
+                <h2 id="upcoming-heading">Lo que viene</h2>
+                <p class="panel-subtitle">Tus próximas clases reservadas</p>
+              </div>
+            </div>
+            <div id="upcoming-list" class="history-list"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

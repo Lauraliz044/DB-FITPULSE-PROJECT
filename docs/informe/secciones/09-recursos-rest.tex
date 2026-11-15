@@ -1,0 +1,87 @@
+\section{Recursos REST y trazabilidad}\label{sec:rest-laura}
+\subsection{Recursos, relaciones y métodos}
+La API utiliza el prefijo \texttt{/api/v1}. Los nombres de ruta identifican recursos y los verbos HTTP expresan la operación. El contrato OpenAPI 3.0.3 describe parámetros, cuerpos y respuestas~\cite{openapi}. Hay 35 combinaciones de método y ruta; no son 35 tablas ni 35 recursos independientes.
+
+Los identificadores de relaciones se envían como referencias: \texttt{packageId} para comprar y \texttt{classId} para reservar o reseñar. Las colecciones personales se anidan en el usuario, por ejemplo \texttt{/users/\{userId\}/reservations}. Las reseñas de una clase se consultan en \texttt{/classes/\{classId\}/reviews}. Se evita duplicar los datos de usuario, clase o paquete en las solicitudes.
+
+\texttt{POST /sessions} crea una sesión lógica y devuelve el token; no existe una tabla de sesiones. \texttt{GET /reports/sales} y el recurso de progreso son consultas derivadas. La asistencia y el estado de una cuenta se representan con subrecursos que admiten \texttt{PATCH}.
+
+\subsection{Operaciones disponibles}
+Las Tablas~\ref{tab:operaciones-laura-1} y~\ref{tab:operaciones-laura-2} enumeran el contrato. Salvo registro e inicio de sesión, todas las operaciones exigen autenticación. El cliente consulta sus datos; el administrador puede consultar datos personales ajenos, pero no modificar una reseña o marca en nombre de su autor.
+\begin{table*}[!t]\caption{Operaciones HTTP (1/2)}\label{tab:operaciones-laura-1}\centering\footnotesize
+\begin{tabular}{p{.54\textwidth}p{.20\textwidth}p{.19\textwidth}}\toprule
+Método y recurso & Acceso & Respuestas documentadas \\ \midrule
+\texttt{POST /\allowbreak{}sessions} & Público & 201, 400, 401, 403, 423 \\
+\texttt{POST /\allowbreak{}users} & Público & 201, 400, 409 \\
+\texttt{GET /\allowbreak{}users} & Administrador & 200, 400, 401, 403 \\
+\texttt{GET /\allowbreak{}users/\allowbreak{}\{id\}} & Propietario o admin & 200, 400, 401, 403, 404 \\
+\texttt{PATCH /\allowbreak{}users/\allowbreak{}\{id\}/\allowbreak{}status} & Administrador & 200, 400, 401, 403, 404 \\
+\texttt{GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}purchases} & Propietario o admin & 200, 400, 401, 403, 404 \\
+\texttt{GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}reservations} & Propietario o admin & 200, 400, 401, 403, 404 \\
+\texttt{GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}personal-records} & Propietario o admin & 200, 400, 401, 403, 404 \\
+\texttt{POST /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}personal-records} & Cliente propietario & 201, 400, 401, 403 \\
+\texttt{GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}progress} & Propietario o admin & 200, 400, 401, 403, 404 \\
+\texttt{GET /\allowbreak{}classes} & Autenticado & 200, 400, 401, 403 \\
+\texttt{POST /\allowbreak{}classes} & Administrador & 201, 400, 401, 403 \\
+\texttt{GET /\allowbreak{}classes/\allowbreak{}\{id\}} & Autenticado & 200, 400, 401, 403, 404 \\
+\texttt{PATCH /\allowbreak{}classes/\allowbreak{}\{id\}} & Administrador & 200, 400, 401, 403, 404, 409 \\
+\texttt{DELETE /\allowbreak{}classes/\allowbreak{}\{id\}} & Administrador & 204, 400, 401, 403, 404, 409 \\
+\texttt{GET /\allowbreak{}classes/\allowbreak{}\{classId\}/\allowbreak{}reviews} & Autenticado & 200, 400, 401, 403, 404 \\
+\texttt{GET /\allowbreak{}packages} & Autenticado & 200, 400, 401, 403 \\
+\texttt{POST /\allowbreak{}packages} & Administrador & 201, 400, 401, 403 \\
+\bottomrule\end{tabular}\end{table*}
+\begin{table*}[!t]\caption{Operaciones HTTP (2/2)}\label{tab:operaciones-laura-2}\centering\footnotesize
+\begin{tabular}{p{.54\textwidth}p{.20\textwidth}p{.19\textwidth}}\toprule
+Método y recurso & Acceso & Respuestas documentadas \\ \midrule
+\texttt{GET /\allowbreak{}packages/\allowbreak{}\{id\}} & Autenticado & 200, 400, 401, 403, 404 \\
+\texttt{PATCH /\allowbreak{}packages/\allowbreak{}\{id\}} & Administrador & 200, 400, 401, 403, 404, 409 \\
+\texttt{DELETE /\allowbreak{}packages/\allowbreak{}\{id\}} & Administrador & 204, 400, 401, 403, 404, 409 \\
+\texttt{POST /\allowbreak{}purchases} & Cliente propietario & 201, 400, 401, 403, 404 \\
+\texttt{GET /\allowbreak{}purchases} & Administrador & 200, 400, 401, 403 \\
+\texttt{GET /\allowbreak{}purchases/\allowbreak{}\{id\}} & Propietario o admin & 200, 400, 401, 403, 404 \\
+\texttt{POST /\allowbreak{}reservations} & Cliente propietario & 201, 400, 401, 403, 404, 409 \\
+\texttt{GET /\allowbreak{}reservations/\allowbreak{}\{id\}} & Propietario o admin & 200, 400, 401, 403, 404 \\
+\texttt{PATCH /\allowbreak{}reservations/\allowbreak{}\{id\}/\allowbreak{}attendance} & Administrador & 200, 400, 401, 403, 404, 409 \\
+\texttt{POST /\allowbreak{}reviews} & Cliente propietario & 201, 400, 401, 403, 404, 409 \\
+\texttt{GET /\allowbreak{}reviews/\allowbreak{}\{id\}} & Autenticado & 200, 400, 401, 403, 404 \\
+\texttt{PATCH /\allowbreak{}reviews/\allowbreak{}\{id\}} & Cliente propietario & 200, 400, 401, 403, 404 \\
+\texttt{DELETE /\allowbreak{}reviews/\allowbreak{}\{id\}} & Cliente propietario & 204, 400, 401, 403, 404 \\
+\texttt{GET /\allowbreak{}personal-records/\allowbreak{}\{id\}} & Propietario o admin & 200, 400, 401, 403, 404 \\
+\texttt{PATCH /\allowbreak{}personal-records/\allowbreak{}\{id\}} & Cliente propietario & 200, 400, 401, 403, 404 \\
+\texttt{DELETE /\allowbreak{}personal-records/\allowbreak{}\{id\}} & Cliente propietario & 204, 400, 401, 403, 404 \\
+\texttt{GET /\allowbreak{}reports/\allowbreak{}sales} & Administrador & 200, 400, 401, 403 \\
+\bottomrule\end{tabular}\end{table*}
+\subsection{Respuestas y operaciones excluidas}
+Una creación devuelve \texttt{201} y la cabecera \texttt{Location}; una consulta o modificación, \texttt{200}; una eliminación correcta, \texttt{204}, sin cuerpo. Los datos se envuelven en \texttt{data}. Los errores se devuelven como \texttt{error.message}: \texttt{400} para entrada inválida, \texttt{401} para sesión ausente o inválida, \texttt{403} para permisos insuficientes, \texttt{404} para un recurso inexistente, \texttt{409} para un conflicto y \texttt{423} durante el bloqueo de cuenta.
+
+No se ofrece eliminación de compras ni de reservas: representan hechos del historial. El usuario se desactiva en lugar de eliminarse. Los paquetes comprados quedan protegidos frente a modificación y eliminación. Las clases con reservas no se modifican; solo se eliminan clases futuras sin reservas. La asistencia confirmada no puede cambiarse a un resultado distinto. Estas decisiones protegen el historial y explican por qué no se fuerza un CRUD idéntico sobre todos los recursos.
+
+\subsection{Trazabilidad funcional}
+Las Tablas~\ref{tab:traza-laura-1} a~\ref{tab:traza-laura-3} conectan los 15 requerimientos con las historias, tablas y operaciones. Los nombres de Postman coinciden exactamente con la colección ejecutable de \texttt{evidence}. Una petición es evidencia de una parte del requisito; no prueba por sí sola toda su amplitud. RF-11 verifica autorización del backend: no constituye evidencia de un panel web implementado. Las comprobaciones adicionales de concurrencia y límites se describen en la sección de pruebas del informe general.
+\begin{table*}[!t]\caption{Trazabilidad funcional (1/3)}\label{tab:traza-laura-1}\centering\scriptsize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{.09\textwidth}p{.20\textwidth}p{.25\textwidth}p{.39\textwidth}}\toprule
+RF / historia & Tablas & Operaciones & Peticiones de Postman \\ \midrule
+RF-01 / CO-1 & \texttt{users} & \texttt{POST /\allowbreak{}users} & POST /\allowbreak{}users - register client - success (201); POST /\allowbreak{}users - invalid email - error (400) \\
+RF-02 / CO-2 & \texttt{users} & \texttt{POST /\allowbreak{}sessions} & POST /\allowbreak{}sessions - client login - success (201); POST /\allowbreak{}sessions - unknown email - error (401) \\
+RF-03 / CO-3, CO-4 & \texttt{scheduled\_\allowbreak{}classes} & \texttt{GET /\allowbreak{}classes}; \texttt{GET /\allowbreak{}classes/\allowbreak{}\{id\}} & GET /\allowbreak{}classes - success (200); GET /\allowbreak{}classes/\allowbreak{}\{id\} - success (200); GET /\allowbreak{}classes/\allowbreak{}\{id\} - missing class - error (404) \\
+RF-04 / CO-5 & \texttt{users}, \texttt{packages}, \texttt{purchases} & \texttt{POST /\allowbreak{}purchases} & POST /\allowbreak{}purchases - success (201); POST /\allowbreak{}purchases - client sends price - error (400) \\
+RF-05 / CO-6 & \texttt{users}, \texttt{scheduled\_\allowbreak{}classes}, \texttt{reservations} & \texttt{POST /\allowbreak{}reservations} & POST /\allowbreak{}reservations - success (201); POST /\allowbreak{}reservations - duplicate - error (409) \\
+\bottomrule\end{tabular}\end{table*}
+\begin{table*}[!t]\caption{Trazabilidad funcional (2/3)}\label{tab:traza-laura-2}\centering\scriptsize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{.09\textwidth}p{.20\textwidth}p{.25\textwidth}p{.39\textwidth}}\toprule
+RF / historia & Tablas & Operaciones & Peticiones de Postman \\ \midrule
+RF-06 / CO-7, CO-8 & \texttt{reservations}, \texttt{scheduled\_\allowbreak{}classes} & \texttt{GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}reservations}; \texttt{PATCH /\allowbreak{}reservations/\allowbreak{}\{id\}/\allowbreak{}attendance} & GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}reservations - success (200); PATCH /\allowbreak{}reservations/\allowbreak{}\{id\}/\allowbreak{}attendance - finished class - success (200); PATCH /\allowbreak{}reservations/\allowbreak{}\{id\}/\allowbreak{}attendance - class not ended - error (409) \\
+RF-07 / CO-9, CO-10 & \texttt{reviews}, \texttt{reservations}, \texttt{scheduled\_\allowbreak{}classes} & \texttt{POST /\allowbreak{}reviews}; \texttt{PATCH /\allowbreak{}reviews/\allowbreak{}\{id\}}; \texttt{DELETE /\allowbreak{}reviews/\allowbreak{}\{id\}} & POST /\allowbreak{}reviews - attended class - success (201); POST /\allowbreak{}reviews - class not attended - error (409); PATCH /\allowbreak{}reviews/\allowbreak{}\{id\} - success (200); DELETE /\allowbreak{}reviews/\allowbreak{}\{id\} - success (204) \\
+RF-08 / CO-11 & \texttt{reservations}, \texttt{scheduled\_\allowbreak{}classes} & \texttt{GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}progress} & GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}progress - success (200); GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}progress - other user - error (403) \\
+RF-09 / CO-12 & \texttt{reservations}, \texttt{scheduled\_\allowbreak{}classes} & \texttt{GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}progress} & GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}progress - success (200); GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}progress - other user - error (403) \\
+RF-10 / CO-13 & \texttt{users}, \texttt{personal\_\allowbreak{}records} & \texttt{POST /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}personal-records}; \texttt{GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}personal-records}; \texttt{PATCH /\allowbreak{}personal-records/\allowbreak{}\{id\}}; \texttt{DELETE /\allowbreak{}personal-records/\allowbreak{}\{id\}} & POST /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}personal-records - success (201); GET /\allowbreak{}users/\allowbreak{}\{userId\}/\allowbreak{}personal-records - other user - error (403); PATCH /\allowbreak{}personal-records/\allowbreak{}\{id\} - success (200); DELETE /\allowbreak{}personal-records/\allowbreak{}\{id\} - success (204) \\
+\bottomrule\end{tabular}\end{table*}
+\begin{table*}[!t]\caption{Trazabilidad funcional (3/3)}\label{tab:traza-laura-3}\centering\scriptsize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{.09\textwidth}p{.20\textwidth}p{.25\textwidth}p{.39\textwidth}}\toprule
+RF / historia & Tablas & Operaciones & Peticiones de Postman \\ \midrule
+RF-11 / AO-1 & \texttt{users} & \texttt{POST /\allowbreak{}sessions}; \texttt{GET /\allowbreak{}users} & POST /\allowbreak{}sessions - admin login - success (201); GET /\allowbreak{}users - admin - success (200); GET /\allowbreak{}users - client role - error (403) \\
+RF-12 / AO-2 & \texttt{scheduled\_\allowbreak{}classes} & \texttt{POST /\allowbreak{}classes}; \texttt{PATCH /\allowbreak{}classes/\allowbreak{}\{id\}}; \texttt{DELETE /\allowbreak{}classes/\allowbreak{}\{id\}} & POST /\allowbreak{}classes - success (201); POST /\allowbreak{}classes - client role - error (403); PATCH /\allowbreak{}classes/\allowbreak{}\{id\} - success (200); DELETE /\allowbreak{}classes/\allowbreak{}\{id\} - success (204) \\
+RF-13 / AO-3 & \texttt{purchases} & \texttt{GET /\allowbreak{}reports/\allowbreak{}sales} & GET /\allowbreak{}reports/\allowbreak{}sales - admin - success (200); GET /\allowbreak{}reports/\allowbreak{}sales - invalid date - error (400) \\
+RF-14 / AO-4 & \texttt{purchases}, \texttt{users}, \texttt{packages} & \texttt{GET /\allowbreak{}purchases}; \texttt{GET /\allowbreak{}purchases/\allowbreak{}\{id\}} & GET /\allowbreak{}purchases - admin - success (200); GET /\allowbreak{}purchases - client role - error (403) \\
+RF-15 / AO-5 & \texttt{users} & \texttt{GET /\allowbreak{}users}; \texttt{PATCH /\allowbreak{}users/\allowbreak{}\{id\}/\allowbreak{}status} & GET /\allowbreak{}users - admin - success (200); PATCH /\allowbreak{}users/\allowbreak{}\{id\}/\allowbreak{}status - deactivate - success (200); PATCH /\allowbreak{}users/\allowbreak{}\{id\}/\allowbreak{}status - invalid status - error (400) \\
+\bottomrule\end{tabular}\end{table*}
