@@ -35,6 +35,11 @@ const translations = {
   "Class not found": "Esta clase ya no existe. Actualiza el catálogo.",
   "Package not found": "Este paquete ya no existe. Actualiza la lista.",
   "User not found": "Este usuario ya no existe. Actualiza la lista.",
+  "The class has not ended":
+    "La clase todavía no ha terminado. Registra la asistencia cuando finalice.",
+  "Attendance has already been recorded":
+    "La asistencia de esta reserva ya fue registrada.",
+  "Reservation not found": "Esta reserva ya no existe. Actualiza la lista.",
   "Only classes attended by this user can be reviewed":
     "Solo puedes reseñar clases a las que asististe.",
   "This user already reviewed the class": "Ya reseñaste esta clase.",

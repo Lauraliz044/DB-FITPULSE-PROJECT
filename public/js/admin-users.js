@@ -5,6 +5,7 @@ import { scheduleFormatter } from "./format.js";
 import { createPager } from "./pagination.js";
 import { showResult } from "./modal.js";
 import { initializePage } from "./shell.js";
+import { openAttendance } from "./attendance.js";
 
 const pageSize = 8;
 const statusLabels = {
@@ -35,6 +36,16 @@ function statusCell(client) {
   return cell;
 }
 
+function attendanceCell(client) {
+  const cell = element("td");
+  const button = element("button", "button button-small", "Ver asistencia");
+  button.type = "button";
+  button.dataset.attendanceUserId = client.id;
+  button.setAttribute("aria-label", `Ver la asistencia de ${client.name}`);
+  cell.append(button);
+  return cell;
+}
+
 function clientRow(client) {
   const row = element("tr");
   row.append(
@@ -42,6 +53,7 @@ function clientRow(client) {
     element("td", "", client.email),
     element("td", "", schedule.shortDate(client.registered_at)),
     statusCell(client),
+    attendanceCell(client),
   );
   return row;
 }
@@ -118,7 +130,18 @@ async function toggleStatus(button) {
 }
 
 rows.addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-user-id]");
-  if (button && !button.disabled) toggleStatus(button);
+  const statusButton = event.target.closest("button[data-user-id]");
+  if (statusButton && !statusButton.disabled) {
+    toggleStatus(statusButton);
+    return;
+  }
+  const attendanceButton = event.target.closest(
+    "button[data-attendance-user-id]",
+  );
+  if (!attendanceButton) return;
+  const client = clients.find(
+    (user) => user.id === Number(attendanceButton.dataset.attendanceUserId),
+  );
+  if (client) openAttendance(client);
 });
 initializePage(loadClients);

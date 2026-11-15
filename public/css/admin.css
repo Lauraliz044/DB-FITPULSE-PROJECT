@@ -83,3 +83,79 @@
 .status-cell .button-secondary {
   background: #fff;
 }
+.attendance-dialog {
+  width: calc(100% - 30px);
+  max-width: 600px;
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  box-shadow: 0 20px 80px #0003;
+}
+.attendance-dialog::backdrop {
+  background: rgb(0 0 0 / 0.55);
+}
+.attendance-dialog .dialog-form {
+  position: relative;
+  padding: 30px;
+}
+.attendance-dialog h2 {
+  margin: 4px 0 10px;
+  padding-right: 36px;
+  font-size: 23px;
+  line-height: 1.4;
+}
+.attendance-dialog .muted {
+  color: var(--color-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.attendance-dialog .dialog-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.attendance-list {
+  display: grid;
+  gap: 10px;
+  max-height: 55vh;
+  margin: 18px 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.attendance-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border-left: 5px solid var(--color-yellow);
+  border-radius: 10px;
+  background: var(--color-page);
+}
+.attendance-details {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.attendance-details span {
+  color: var(--color-muted);
+  font-size: 14px;
+}
+.attendance-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+@media (max-width: 560px) {
+  .attendance-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
