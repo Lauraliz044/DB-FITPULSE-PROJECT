@@ -1,0 +1,139 @@
+.button-accent {
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 17px;
+}
+.button-accent:hover:not(:disabled) {
+  background: var(--color-today);
+}
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+}
+.review-grid > .loading-state,
+.review-grid > .empty-state {
+  grid-column: 1 / -1;
+}
+.review-card {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 170px;
+  padding: 18px;
+  border-top: 5px solid var(--color-yellow);
+  border-radius: 12px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+.review-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.review-author strong,
+.review-author span:not(.review-avatar) {
+  display: block;
+}
+.review-author strong {
+  font-size: 15px;
+}
+.review-author span:not(.review-avatar) {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+.review-avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: 600;
+}
+.review-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.review-class {
+  padding: 2px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-yellow);
+  font-size: 13px;
+  font-weight: 600;
+}
+.review-comment {
+  font-size: 15px;
+}
+.review-extra {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+.stars {
+  display: inline-flex;
+  gap: 2px;
+  color: #8a7400;
+}
+.stars svg {
+  width: 22px;
+  height: 22px;
+}
+.star-filled svg {
+  fill: var(--color-yellow);
+}
+.review-form {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 14px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+.review-form-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+.review-class-field {
+  min-width: 260px;
+}
+.review-form textarea.field-input {
+  min-height: 180px;
+  background: #eee;
+}
+.review-options {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 16px;
+}
+.star-input {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.star-input legend {
+  margin-bottom: 6px;
+  padding: 0;
+  font-size: 15px;
+}
+.star-input label {
+  cursor: pointer;
+  color: #8a7400;
+}
+.star-input input {
+  position: absolute;
+  opacity: 0;
+}
+.star-input svg {
+  width: 32px;
+  height: 32px;
+}
+.star-input input:focus-visible + span {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}

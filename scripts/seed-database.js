@@ -25,8 +25,11 @@ async function seed() {
       const packages = await query('SELECT COUNT(*) AS total FROM packages', [], connection);
       if (Number(packages[0].total) === 0) {
         await query(`INSERT INTO packages (name, class_quantity, price, description)
-          VALUES (?, ?, ?, ?), (?, ?, ?, ?)`,
-          ['Starter', 5, '120000.00', 'Five gym classes', 'Regular', 10, '220000.00', 'Ten gym classes'], connection);
+          VALUES (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?)`,
+          ['Pase Diario', 1, '10000.00', 'Una clase grupal a elección.',
+            'Paquete Mensual', 4, '35000.00', 'Cuatro clases grupales con seguimiento en la app.',
+            'Paquete Anual', 45, '300000.00', 'Cuarenta y cinco clases grupales para todo el año.'],
+          connection);
       }
     });
     console.log('Administrator and package examples are ready');

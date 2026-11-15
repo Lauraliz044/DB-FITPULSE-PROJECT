@@ -1603,7 +1603,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Reviews of the class",
+            "description": "Reviews of the class, with the first name of each author",
             "content": {
               "application/json": {
                 "schema": {
@@ -1612,7 +1612,20 @@
                     "data": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/Review"
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/Review"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "author_name": {
+                                "type": "string",
+                                "description": "First name of the client who wrote the review"
+                              }
+                            }
+                          }
+                        ]
                       }
                     }
                   }
@@ -1631,7 +1644,8 @@
                         "organized"
                       ],
                       "created_at": "2026-10-14 21:37:05",
-                      "updated_at": "2026-10-14 21:37:05"
+                      "updated_at": "2026-10-14 21:37:05",
+                      "author_name": "Valentina"
                     }
                   ]
                 }

@@ -1,20 +1,15 @@
+import { getSession, request, listAll, getConfiguration } from "./api.js";
+import { errorMessage } from "./messages.js";
 import {
-  getSession,
-  request,
-  listAll,
-  getConfiguration,
-  errorMessage,
-} from "./api.js";
-import {
-  initialize,
   element,
-  icon,
   number,
   dateLabel,
   businessToday,
   status,
   showData,
-} from "./app.js";
+} from "./ui.js";
+import { icon } from "./icons.js";
+import { initializePage } from "./shell.js";
 import { calendarDays, categoryShares } from "./progress-data.js";
 
 let attended = [];
@@ -67,7 +62,8 @@ function renderActivity() {
       element("span", "day-name", ["L", "M", "Mi", "J", "V", "S", "D"][index]),
       element("strong", "day-number", day.date.slice(8)),
     );
-    const check = element("span", "day-check", day.count ? "✓" : "·");
+    const check = element("span", "day-check");
+    if (day.count) check.innerHTML = icon("check");
     check.setAttribute("aria-hidden", "true");
     tile.append(check);
     grid.append(tile);
@@ -202,27 +198,6 @@ function renderClasses(values, selector, future) {
   }
 }
 
-function clear() {
-  activeLoad?.abort();
-  attended = [];
-  weekOffset = 0;
-  for (const selector of [
-    "#total-attended",
-    "#weekly-streak",
-    "#category-count",
-  ])
-    document.querySelector(selector).textContent = "—";
-  for (const selector of [
-    "#activity-chart",
-    "#category-list",
-    "#attended-list",
-    "#upcoming-list",
-    "#records-summary",
-  ])
-    document.querySelector(selector).replaceChildren();
-  document.querySelector("#retry-button").hidden = true;
-}
-
 async function load() {
   activeLoad?.abort();
   const session = getSession();
@@ -230,7 +205,6 @@ async function load() {
     showData(false);
     return;
   }
-  document.querySelector("#guest-state").hidden = true;
   activeLoad = new AbortController();
   const signal = activeLoad.signal;
   const refresh = document.querySelector("#refresh-button");
@@ -292,7 +266,6 @@ async function load() {
   } catch (error) {
     if (error.name !== "AbortError") {
       showData(false);
-      document.querySelector("#guest-state").hidden = Boolean(getSession());
       status("error", errorMessage(error));
       document.querySelector("#retry-button").hidden = !getSession();
     }
@@ -316,11 +289,4 @@ document.querySelector("#next-week").addEventListener("click", () => {
 });
 for (const selector of ["#refresh-button", "#retry-button"])
   document.querySelector(selector).addEventListener("click", load);
-initialize(load, clear).catch((error) => status("error", errorMessage(error)));
-businessToday()
-  .then((date) => {
-    document.querySelector("#today-label").textContent = dateLabel(date, {
-      year: "numeric",
-    });
-  })
-  .catch(() => {});
+initializePage(load);

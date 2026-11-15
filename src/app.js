@@ -17,7 +17,7 @@ app.get('/app-config.json', (request, response) => {
     apiPrefix: settings.apiPrefix, timeZone: settings.timeZone
   });
 });
-app.get('/', (request, response) => response.redirect('/progress.html'));
+app.get('/', (request, response) => response.redirect('/login.html'));
 app.use(express.static(path.join(__dirname, '../public'), {
   index: false, dotfiles: 'deny',
   setHeaders(response) {

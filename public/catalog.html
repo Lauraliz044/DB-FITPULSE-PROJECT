@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#e6ca3f" />
+    <title>Catálogo · FitPulse</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/class-card.css" />
+    <link rel="stylesheet" href="/css/catalog.css" />
+    <script type="module" src="/js/catalog.js"></script>
+  </head>
+  <body data-role="client">
+    <a class="skip-link" href="#main-content">Ir al contenido</a>
+    <header class="app-header" id="app-header"></header>
+    <aside class="sidebar" id="sidebar" aria-label="Menú principal"></aside>
+    <main class="app-main" id="main-content">
+      <section class="page-heading" aria-labelledby="page-title">
+        <h1 id="page-title">Catálogo</h1>
+      </section>
+      <div class="stat-strip" id="page-stats" aria-label="Resumen"></div>
+      <div class="filter-bar" role="group" aria-label="Filtrar clases">
+        <label class="filter-chip">
+          <span class="visually-hidden">Disciplina</span>
+          <select id="category-filter">
+            <option value="">Disciplina</option>
+          </select>
+        </label>
+        <label class="filter-chip">
+          <span class="visually-hidden">Instructor</span>
+          <select id="instructor-filter">
+            <option value="">Instructor</option>
+          </select>
+        </label>
+        <label class="filter-chip">
+          <span class="visually-hidden">Horario</span>
+          <select id="daypart-filter">
+            <option value="">Horario</option>
+          </select>
+        </label>
+      </div>
+      <div
+        id="page-status"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+      <div class="class-grid" id="class-grid"></div>
+    </main>
+  </body>
+</html>

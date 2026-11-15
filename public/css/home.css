@@ -1,0 +1,47 @@
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.summary-panel {
+  min-height: 210px;
+  padding: 14px 18px 18px;
+  border: 6px solid var(--color-field);
+  border-radius: 10px;
+  background: var(--color-cream);
+}
+.summary-panel h2 {
+  margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+}
+.summary-body {
+  display: grid;
+  gap: 6px;
+  font-size: 17px;
+}
+.summary-body .summary-highlight {
+  font-size: 22px;
+  font-weight: 600;
+}
+.summary-body .loading-state {
+  padding: 18px 0;
+}
+.summary-body .empty-state {
+  padding: 8px 0;
+  font-size: 15px;
+  text-align: left;
+}
+.next-class {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: var(--color-field);
+  font-size: 18px;
+}

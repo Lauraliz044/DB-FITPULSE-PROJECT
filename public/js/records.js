@@ -1,31 +1,24 @@
-import { getSession, request, listAll, errorMessage } from "./api.js";
+import { getSession, request, listAll } from "./api.js";
+import { errorMessage } from "./messages.js";
 import {
-  initialize,
   element,
-  icon,
   number,
   dateLabel,
   businessToday,
   status,
   showData,
   setBusy,
-} from "./app.js";
+} from "./ui.js";
+import { icon } from "./icons.js";
+import { initializePage } from "./shell.js";
+import { typeLabels, typeLabel } from "./record-types.js";
 
-const typeLabels = {
-  maximum_weight: "Peso máximo",
-  distance: "Distancia",
-  duration: "Tiempo",
-  repetitions: "Repeticiones",
-};
 let records = [];
 let activeLoad;
 let editingId = null;
 let deletingId = null;
 let saving = false;
 
-function typeLabel(value) {
-  return typeLabels[value] || value;
-}
 function groupKey(item) {
   return JSON.stringify([item.exercise, item.record_type, item.unit]);
 }
@@ -42,10 +35,10 @@ function mountDialogs() {
       <div class="form-grid"><label>Resultado<input name="value" type="number" min="0.001" max="999999999.999" step="0.001" required inputmode="decimal" placeholder="0"></label><label>Unidad<input name="unit" maxlength="45" required placeholder="kg" list="record-units"><datalist id="record-units"><option value="kg"><option value="lb"><option value="km"><option value="m"><option value="min"><option value="s"><option value="repeticiones"></datalist></label></div>
       <label>Fecha de la marca<input name="achievedOn" type="date" required></label>
       <p class="form-error" id="record-error" role="alert" hidden></p>
-      <div class="dialog-buttons"><button class="button" type="button" data-cancel>Cancelar</button><button class="button button-primary" id="save-record-button" type="submit">Guardar marca</button></div>
+      <div class="dialog-buttons"><button class="button button-secondary" type="button" data-cancel>Cancelar</button><button class="button button-primary" id="save-record-button" type="submit">Guardar marca</button></div>
     </form>`;
   document.querySelector("#delete-dialog").innerHTML = `
-    <form id="delete-form" class="dialog-form"><span class="eyebrow">REVISA ANTES DE CONTINUAR</span><h2 id="delete-heading">¿Eliminar esta marca?</h2><p class="delete-description">Se eliminará el registro de <strong id="delete-exercise"></strong>. Esta acción no se puede deshacer.</p><p class="form-error" id="delete-error" role="alert" hidden></p><div class="dialog-buttons"><button class="button" type="button" data-cancel>Conservar marca</button><button class="button button-danger" id="confirm-delete-button" type="submit">Eliminar marca</button></div></form>`;
+    <form id="delete-form" class="dialog-form"><span class="eyebrow">REVISA ANTES DE CONTINUAR</span><h2 id="delete-heading">¿Eliminar esta marca?</h2><p class="delete-description">Se eliminará el registro de <strong id="delete-exercise"></strong>. Esta acción no se puede deshacer.</p><p class="form-error" id="delete-error" role="alert" hidden></p><div class="dialog-buttons"><button class="button button-secondary" type="button" data-cancel>Conservar marca</button><button class="button button-danger" id="confirm-delete-button" type="submit">Eliminar marca</button></div></form>`;
   const dialog = document.querySelector("#record-dialog");
   for (const selector of ["[data-close]", "[data-cancel]"])
     dialog
@@ -74,10 +67,7 @@ function syncCustomType() {
 
 async function openRecord(item) {
   const session = getSession();
-  if (!session) {
-    document.querySelector("#auth-dialog").showModal();
-    return;
-  }
+  if (!session) return;
   if (session.user.role !== "client") {
     status(
       "error",
@@ -363,26 +353,6 @@ function render() {
   renderTrend();
 }
 
-function clear() {
-  activeLoad?.abort();
-  records = [];
-  editingId = null;
-  deletingId = null;
-  document.querySelector("#record-dialog").close();
-  document.querySelector("#delete-dialog").close();
-  for (const selector of [
-    "#records-count",
-    "#exercises-count",
-    "#latest-record",
-  ])
-    document.querySelector(selector).textContent = "—";
-  document.querySelector("#records-body").replaceChildren();
-  document.querySelector("#trend-chart").replaceChildren();
-  document.querySelector("#search-records").value = "";
-  document.querySelector("#type-filter").value = "";
-  document.querySelector("#retry-button").hidden = true;
-}
-
 async function load(message) {
   activeLoad?.abort();
   const session = getSession();
@@ -390,7 +360,6 @@ async function load(message) {
     showData(false);
     return;
   }
-  document.querySelector("#guest-state").hidden = true;
   activeLoad = new AbortController();
   const signal = activeLoad.signal;
   const refresh = document.querySelector("#refresh-button");
@@ -452,11 +421,4 @@ for (const selector of ["#search-records", "#type-filter", "#sort-records"])
       renderTable,
     );
 document.querySelector("#trend-filter").addEventListener("change", renderTrend);
-initialize(load, clear).catch((error) => status("error", errorMessage(error)));
-businessToday()
-  .then((date) => {
-    document.querySelector("#today-label").textContent = dateLabel(date, {
-      year: "numeric",
-    });
-  })
-  .catch(() => {});
+initializePage(load);

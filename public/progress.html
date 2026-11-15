@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" translate="no">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,38 +7,32 @@
       name="description"
       content="Mira tu constancia, descubre qué actividades practicas y sigue avanzando a tu ritmo."
     />
-    <meta name="theme-color" content="#e8cf3f" />
+    <meta name="theme-color" content="#e6ca3f" />
     <title>Mi progreso · FitPulse</title>
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/progress.css" />
     <script type="module" src="/js/progress.js"></script>
   </head>
-  <body data-page="progress">
+  <body data-role="client">
     <a class="skip-link" href="#main-content">Ir al contenido</a>
-    <aside class="sidebar" id="sidebar" aria-label="Mi cuenta"></aside>
-    <main id="main-content">
-      <header class="topbar">
-        <div class="breadcrumbs">
-          <span>Mi espacio</span
-          ><span class="separator" aria-hidden="true">/</span
-          ><strong>Mi progreso</strong>
-        </div>
-        <div class="topbar-right">
-          <span class="today"
-            ><span data-icon="calendar"></span
-            ><time id="today-label"></time></span
-          ><button class="button button-small" type="button" data-sign-in>
-            Iniciar sesión
-          </button>
-        </div>
-      </header>
-      <section class="hero" aria-labelledby="page-title">
+    <header class="app-header" id="app-header"></header>
+    <aside class="sidebar" id="sidebar" aria-label="Menú principal"></aside>
+    <main class="app-main" id="main-content">
+      <section class="page-heading" aria-labelledby="page-title">
         <div>
           <h1 id="page-title">Mi progreso</h1>
-          <p>Monitorea tus estadísticas, rendimiento y marcas personales.</p>
+          <p class="page-subtitle">
+            Monitorea tus estadísticas, rendimiento y marcas personales
+          </p>
         </div>
-        <div class="hero-actions">
-          <button class="button" id="refresh-button" type="button">
+        <div class="page-actions">
+          <button
+            class="button button-secondary button-small"
+            id="refresh-button"
+            type="button"
+          >
             <span data-icon="refresh"></span><span>Actualizar</span>
           </button>
         </div>
@@ -58,21 +52,6 @@
       >
         Volver a intentar
       </button>
-      <section
-        class="guest-state"
-        id="guest-state"
-        aria-labelledby="guest-title"
-      >
-        <span class="guest-icon" data-icon="chart"></span>
-        <h2 id="guest-title">Tu progreso tiene su propio espacio.</h2>
-        <p>
-          Inicia sesión o crea tu cuenta para consultar tus clases asistidas y
-          registrar tus marcas personales.
-        </p>
-        <button class="button button-primary" type="button" data-sign-in>
-          Entrar a mi espacio <span data-icon="arrow"></span>
-        </button>
-      </section>
       <div id="page-data" hidden>
         <section class="stats-grid" aria-label="Resumen de progreso">
           <article class="stat">
@@ -147,7 +126,7 @@
             <h2 id="summary-heading">Registro de marcas personales</h2>
             <div id="records-summary"></div>
           </div>
-          <a class="button button-primary" href="/personal-records.html"
+          <a class="button" href="/personal-records.html"
             >Editar <span data-icon="edit"></span
           ></a>
         </section>
@@ -175,11 +154,6 @@
           </section>
         </div>
       </div>
-      <footer class="footer">
-        <span>FitPulse · Tu entrenamiento, con propósito.</span
-        ><span>Progreso a tu ritmo.</span>
-      </footer>
     </main>
-    <dialog id="auth-dialog" aria-labelledby="auth-heading"></dialog>
   </body>
 </html>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#e6ca3f" />
+    <title>Reseñas · FitPulse</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/reviews.css" />
+    <script type="module" src="/js/reviews.js"></script>
+  </head>
+  <body data-role="client">
+    <a class="skip-link" href="#main-content">Ir al contenido</a>
+    <header class="app-header" id="app-header"></header>
+    <aside class="sidebar" id="sidebar" aria-label="Menú principal"></aside>
+    <main class="app-main" id="main-content">
+      <section class="page-heading" aria-labelledby="page-title">
+        <h1 id="page-title">Reseñas</h1>
+        <button class="button button-accent" id="switch-view" type="button">
+          Escribe tu reseña o comentario
+        </button>
+      </section>
+      <div class="stat-strip" id="page-stats" aria-label="Resumen"></div>
+      <div
+        id="page-status"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+      <section id="review-list-view" aria-label="Reseñas de las clases">
+        <div class="review-grid" id="review-grid"></div>
+      </section>
+      <section id="review-form-view" aria-label="Escribir una reseña" hidden>
+        <form class="review-form" id="review-form">
+          <div class="alert" id="review-feedback" role="alert" hidden>
+            <span class="alert-text"></span><span data-icon="info"></span>
+          </div>
+          <div class="review-form-header">
+            <div class="review-author">
+              <span class="review-avatar" id="author-avatar"></span>
+              <div>
+                <strong id="author-name"></strong>
+                <span id="author-email"></span>
+              </div>
+            </div>
+            <label class="field review-class-field">
+              Clase:
+              <select class="field-input" name="classId" required></select>
+            </label>
+          </div>
+          <p class="form-hint" id="review-hint" hidden>
+            No tienes clases pendientes por reseñar. Podrás reseñar una clase
+            cuando el administrador confirme tu asistencia.
+          </p>
+          <fieldset class="star-input" id="star-input">
+            <legend>Calificación (obligatoria):</legend>
+          </fieldset>
+          <label class="field">
+            <span class="visually-hidden">Comentario</span>
+            <textarea
+              class="field-input"
+              name="comment"
+              maxlength="2000"
+              placeholder="Escribe tu reseña…"
+            ></textarea>
+          </label>
+          <div class="review-options">
+            <label class="field">
+              Intensidad percibida (opcional):
+              <select class="field-input" name="intensity">
+                <option value="">Sin indicar</option>
+                <option value="low">Baja</option>
+                <option value="moderate">Moderada</option>
+                <option value="high">Alta</option>
+              </select>
+            </label>
+            <label class="field">
+              Etiquetas (opcional, separadas por comas):
+              <input
+                class="field-input"
+                name="tags"
+                maxlength="400"
+                placeholder="puntual, motivador"
+              />
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="button button-small" id="send-review" type="submit">
+              Enviar
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

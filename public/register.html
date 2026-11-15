@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#e6ca3f" />
+    <title>Crear cuenta · FitPulse</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+    <script type="module" src="/js/register.js"></script>
+  </head>
+  <body class="auth-page">
+    <main class="auth-card auth-card-wide">
+      <h1 class="auth-title">
+        Regístrate en
+        <span class="wordmark"
+          ><span class="wordmark-accent">F</span>it<span class="wordmark-accent"
+            >P</span
+          >ulse</span
+        >
+      </h1>
+      <form class="auth-form" id="register-form">
+        <div class="alert" id="register-feedback" role="alert" hidden>
+          <span class="alert-text"></span><span data-icon="info"></span>
+        </div>
+        <label class="field">
+          Nombre:
+          <input
+            class="field-input"
+            name="name"
+            autocomplete="name"
+            maxlength="45"
+            required
+          />
+        </label>
+        <label class="field">
+          Correo electrónico:
+          <input
+            class="field-input"
+            name="email"
+            type="email"
+            autocomplete="email"
+            maxlength="254"
+            required
+          />
+        </label>
+        <label class="field" for="register-password"
+          >Contraseña (mínimo 8 caracteres):</label
+        >
+        <div class="password-control">
+          <input
+            class="field-input"
+            id="register-password"
+            name="password"
+            type="password"
+            autocomplete="new-password"
+            minlength="8"
+            maxlength="200"
+            required
+          />
+          <button
+            class="password-toggle"
+            id="password-toggle"
+            type="button"
+          ></button>
+        </div>
+        <label class="field">
+          Verifica la contraseña:
+          <input
+            class="field-input"
+            name="confirmPassword"
+            type="password"
+            autocomplete="new-password"
+            minlength="8"
+            maxlength="200"
+            required
+          />
+        </label>
+        <div class="auth-actions auth-actions-start">
+          <button
+            class="button button-submit"
+            id="register-submit"
+            type="submit"
+          >
+            Crear cuenta
+          </button>
+          <span>¿Ya tienes cuenta?</span>
+          <a class="auth-link" href="/login.html">Iniciar Sesión</a>
+        </div>
+      </form>
+    </main>
+  </body>
+</html>

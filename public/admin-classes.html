@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#e6ca3f" />
+    <title>Gestión de clases · FitPulse</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+    <script type="module" src="/js/admin-classes.js"></script>
+  </head>
+  <body data-role="admin">
+    <a class="skip-link" href="#main-content">Ir al contenido</a>
+    <header class="app-header" id="app-header"></header>
+    <aside class="sidebar" id="sidebar" aria-label="Menú principal"></aside>
+    <main class="app-main" id="main-content">
+      <section class="page-heading" aria-labelledby="page-title">
+        <div>
+          <h1 id="page-title">Gestión de clases</h1>
+          <p class="page-subtitle">
+            Administra la oferta de clases, cupos, precios e instructores.
+          </p>
+        </div>
+      </section>
+      <div class="stat-strip" id="page-stats" aria-label="Resumen"></div>
+      <div
+        id="page-status"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+      <section
+        class="surface"
+        id="class-list-view"
+        aria-labelledby="list-title"
+      >
+        <h2 class="section-title" id="list-title">Clases en catálogo</h2>
+        <table class="data-table">
+          <caption class="visually-hidden">
+            Clases registradas en el catálogo
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Clase</th>
+              <th scope="col">Categoría</th>
+              <th scope="col">Instructor</th>
+              <th scope="col">Horario</th>
+              <th scope="col">Cupos</th>
+              <th scope="col">Precio</th>
+            </tr>
+          </thead>
+          <tbody id="class-rows"></tbody>
+        </table>
+        <p class="empty-state" id="class-empty" hidden>
+          Aún no hay clases registradas. Crea la primera clase del catálogo.
+        </p>
+        <div class="table-footer">
+          <button class="button button-small" id="open-form" type="button">
+            Crear clase <span data-icon="plus"></span>
+          </button>
+        </div>
+      </section>
+      <section id="class-form-view" aria-labelledby="form-title" hidden>
+        <h2 class="section-title" id="form-title">Crear clase</h2>
+        <form class="form-panel" id="class-form">
+          <div class="alert" id="class-feedback" role="alert" hidden>
+            <span class="alert-text"></span><span data-icon="info"></span>
+          </div>
+          <div class="form-columns">
+            <div class="form-column">
+              <label class="field">
+                Nombre de la clase:
+                <input
+                  class="field-input"
+                  name="name"
+                  maxlength="45"
+                  required
+                />
+              </label>
+              <label class="field">
+                Descripción:
+                <textarea
+                  class="field-input"
+                  name="description"
+                  maxlength="5000"
+                  required
+                ></textarea>
+              </label>
+              <div class="field-pair">
+                <label class="field">
+                  Precio (COP):
+                  <input
+                    class="field-input"
+                    name="price"
+                    type="number"
+                    min="0"
+                    step="1"
+                    inputmode="numeric"
+                    required
+                  />
+                </label>
+                <label class="field">
+                  Categoría:
+                  <input
+                    class="field-input"
+                    name="category"
+                    list="category-options"
+                    maxlength="45"
+                    required
+                  />
+                  <datalist id="category-options"></datalist>
+                </label>
+              </div>
+            </div>
+            <div class="form-column">
+              <label class="field">
+                Instructor:
+                <input
+                  class="field-input"
+                  name="instructorName"
+                  maxlength="45"
+                  required
+                />
+              </label>
+              <label class="field">
+                Cupos:
+                <input
+                  class="field-input"
+                  name="capacity"
+                  type="number"
+                  min="1"
+                  step="1"
+                  inputmode="numeric"
+                  required
+                />
+              </label>
+              <fieldset class="field schedule-field">
+                <legend>Horario:</legend>
+                <label class="field">
+                  Inicio
+                  <input
+                    class="field-input"
+                    name="startsAt"
+                    type="datetime-local"
+                    required
+                  />
+                </label>
+                <label class="field">
+                  Hora de fin
+                  <input
+                    class="field-input"
+                    name="endTime"
+                    type="time"
+                    required
+                  />
+                </label>
+              </fieldset>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button
+              class="button button-secondary button-small"
+              id="cancel-form"
+              type="button"
+            >
+              Cancelar
+            </button>
+            <button class="button button-small" id="save-class" type="submit">
+              Crear clase
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

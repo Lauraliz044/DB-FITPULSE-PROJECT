@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#e6ca3f" />
+    <title>Inicio · FitPulse</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/home.css" />
+    <script type="module" src="/js/home.js"></script>
+  </head>
+  <body data-role="client">
+    <a class="skip-link" href="#main-content">Ir al contenido</a>
+    <header class="app-header" id="app-header"></header>
+    <aside class="sidebar" id="sidebar" aria-label="Menú principal"></aside>
+    <main class="app-main" id="main-content">
+      <section class="page-heading" aria-labelledby="page-title">
+        <div>
+          <h1 id="page-title">Hola</h1>
+          <p class="page-subtitle">
+            Aquí está el resumen de tu actividad deportiva
+          </p>
+        </div>
+      </section>
+      <div
+        id="page-status"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+      <section class="summary-cards" aria-label="Resumen de actividad">
+        <article class="summary-panel" aria-labelledby="streak-title">
+          <h2 id="streak-title">Racha</h2>
+          <div class="summary-body" id="streak-body"></div>
+        </article>
+        <article class="summary-panel" aria-labelledby="totals-title">
+          <h2 id="totals-title">Totales</h2>
+          <div class="summary-body" id="totals-body"></div>
+        </article>
+        <article class="summary-panel" aria-labelledby="records-title">
+          <h2 id="records-title">Marcas</h2>
+          <div class="summary-body" id="records-body"></div>
+        </article>
+      </section>
+      <section class="next-class" aria-label="Próxima clase">
+        <p id="next-class-text">Buscando tu próxima clase…</p>
+        <a class="button" href="/catalog.html">Nueva reserva</a>
+      </section>
+    </main>
+  </body>
+</html>

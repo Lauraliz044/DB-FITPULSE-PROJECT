@@ -34,8 +34,12 @@ async function update(reviewId, reviewData) {
 }
 
 async function list(classId, limit, offset) {
-  const rows = await query(`SELECT ${columns} FROM reviews WHERE idclass = ?
-    ORDER BY created_at DESC, idreview DESC LIMIT ? OFFSET ?`, [classId, String(limit), String(offset)]);
+  const rows = await query(`SELECT review.idreview AS id, review.iduser AS user_id,
+    review.idclass AS class_id, review.rating, review.comment, review.intensity, review.tags,
+    review.created_at, review.updated_at, SUBSTRING_INDEX(author.name, ' ', 1) AS author_name
+    FROM reviews review JOIN users author ON author.idusers = review.iduser
+    WHERE review.idclass = ? ORDER BY review.created_at DESC, review.idreview DESC
+    LIMIT ? OFFSET ?`, [classId, String(limit), String(offset)]);
   return rows.map(parseTags);
 }
 

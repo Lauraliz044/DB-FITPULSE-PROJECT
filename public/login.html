@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#e6ca3f" />
+    <title>Iniciar sesión · FitPulse</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+    <script type="module" src="/js/login.js"></script>
+  </head>
+  <body class="auth-page">
+    <main class="auth-card">
+      <p class="auth-welcome">Bienvenido a</p>
+      <h1 class="wordmark">
+        <span class="wordmark-accent">F</span>it<span class="wordmark-accent"
+          >P</span
+        >ulse
+      </h1>
+      <form class="auth-form" id="login-form">
+        <div class="alert" id="login-feedback" role="alert" hidden>
+          <span class="alert-text"></span><span data-icon="info"></span>
+        </div>
+        <label class="field">
+          Correo electrónico:
+          <input
+            class="field-input"
+            name="email"
+            type="email"
+            autocomplete="username"
+            maxlength="254"
+            required
+          />
+        </label>
+        <label class="field" for="login-password">Contraseña:</label>
+        <div class="password-control">
+          <input
+            class="field-input"
+            id="login-password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            maxlength="200"
+            required
+          />
+          <button
+            class="password-toggle"
+            id="password-toggle"
+            type="button"
+          ></button>
+        </div>
+        <div class="auth-actions">
+          <button class="button button-submit" id="login-submit" type="submit">
+            Iniciar Sesión
+          </button>
+          <span>¿No tienes cuenta?</span>
+          <a class="auth-link" href="/register.html">Regístrate</a>
+        </div>
+      </form>
+    </main>
+  </body>
+</html>

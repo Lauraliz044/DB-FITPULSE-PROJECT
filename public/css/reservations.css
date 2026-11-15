@@ -1,0 +1,56 @@
+.tab-list {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+.tab {
+  padding: 6px 18px;
+  border: 0;
+  border-radius: 6px;
+  background: #efe3a0;
+  color: #5c5110;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.tab[aria-selected="true"] {
+  padding: 10px 24px;
+  background: var(--color-yellow);
+  color: var(--color-black);
+  font-size: 18px;
+  font-weight: 500;
+}
+.reservation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 28px;
+}
+.reservation-grid > .loading-state,
+.reservation-grid > .empty-state {
+  grid-column: 1 / -1;
+}
+.reservation-item {
+  display: grid;
+  justify-items: center;
+}
+.reservation-label {
+  position: relative;
+  z-index: 1;
+  min-width: 70%;
+  margin-bottom: -8px;
+  padding: 3px 14px;
+  border-radius: 6px 6px 0 0;
+  background: var(--color-field);
+  font-size: 18px;
+  text-align: center;
+  text-transform: uppercase;
+}
+.reservation-label-today {
+  background: var(--color-today);
+  color: #fff;
+}
+.empty-state a {
+  color: var(--color-ink);
+  font-weight: 600;
+}
