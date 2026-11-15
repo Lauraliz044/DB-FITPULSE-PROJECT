@@ -7,9 +7,11 @@ async function start() {
   try {
     await query('SELECT 1');
     await checkSchema(pool);
-    app.listen(settings.port, () => {
-      console.log(`FitPulse API: ${settings.baseUrl}${settings.apiPrefix}`);
-      console.log(`API documentation: ${settings.baseUrl}/docs`);
+        app.listen(settings.port, () => {
+      const localUrl = `http://localhost:${settings.port}`;
+      console.log(`FitPulse web: ${localUrl}`);
+      console.log(`FitPulse API: ${localUrl}${settings.apiPrefix}`);
+      console.log(`API documentation: ${localUrl}/docs`);
     });
   } catch (error) {
     console.error(`Startup failed: ${error.code || error.message}`);
