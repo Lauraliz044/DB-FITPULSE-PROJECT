@@ -8,6 +8,6 @@
     "Missing automatic record identifier rejected",
     "Missing seventh table rejected"
   ],
-  "executedAt": "2026-11-15T03:45:33.851Z",
+  "executedAt": "2026-11-16T00:31:37.640Z",
   "fixtureNote": "A newly created isolated test database is removed after this run."
 }

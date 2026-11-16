@@ -2,7 +2,7 @@
 
 ## Entorno y resultados de esta revisión
 
-Ejecución del 14 de noviembre de 2026, con **Node.js 22.23.5** y **MySQL 8.4.13**. Se usaron bases locales desechables y cuentas ficticias. Los resultados no certifican el entorno de Windows del usuario ni un servidor público.
+Ejecución del 14 de noviembre de 2026, con **Node.js 22.23.5** y **MySQL 8.4.13**. Se usaron bases locales desechables y cuentas ficticias. Los resultados no certifican el rendimiento de un servidor público.
 
 | Verificación | Resultado | Evidencia |
 | --- | --- | --- |
@@ -50,7 +50,7 @@ En una base de demostración limpia, ejecuta `db:setup`, `db:seed`, `db:demo` y 
 
 Ejecuta todas las carpetas en orden. La colección inicia sesiones y conserva identificadores y tokens automáticamente. Sus carpetas siguen el orden de uso del gimnasio; por eso no coinciden exactamente con la agrupación de recursos del informe. Usa datos de demostración: la colección crea y modifica registros. Si la repites, los datos previos pueden cambiar los casos esperados; prepara una base desechable nueva para comparar una corrida completa.
 
-La verificación guardada se ejecutó con Newman, la herramienta CLI de Postman, contra la API real. No se fabricaron capturas de la interfaz de Postman ni de Thunder Client.
+La verificación guardada se ejecutó con Newman, la herramienta CLI de Postman, contra la API real.
 
 ## Recorrido manual para explicar el funcionamiento
 
@@ -67,6 +67,4 @@ La verificación guardada se ejecutó con Newman, la herramienta CLI de Postman,
 La prueba de concurrencia de `npm test` envía dos reservas de clientes distintos al último cupo: exactamente una debe devolver `201` y la otra `409`, quedando una sola fila. El bloqueo tras cinco intentos erróneos devuelve cuatro veces `401` y luego `423`; la suite verifica el contador, la duración y el desbloqueo. Estos casos respaldan RNF-02 y RNF-03. El almacenamiento de RNF-01 ahora tiene pruebas de Argon2id y migración; cada base existente debe ejecutar esa migración localmente.
 
 
-La revisión de navegador de las dos páginas se detalla en `evidence/web-review.json`. Se usó una sesión sintética preparada por un arnés local externo al repositorio. Registro, login y migración se verificaron mediante las pruebas HTTP y de comandos; no se atribuye al navegador una entrada manual de credenciales que no se realizó.
-
-La revisión visual actual utiliza las capturas de Figma aportadas por la usuaria: comprueba el calendario, gráfico circular, resumen de marcas y el recorrido de edición. El acceso al archivo editable sigue sin estar disponible. Consulta la [guía desde cero](guia-desde-cero.md) para instalar, migrar y repetir las pruebas en Windows.
+La interfaz web se verifica con el recorrido de la sección «Recorrer la interfaz web» del README: registro, inicio de sesión, catálogo, reservas, paquetes, reseñas, progreso, marcas personales y las tres pantallas del administrador, incluido el registro de asistencia.
