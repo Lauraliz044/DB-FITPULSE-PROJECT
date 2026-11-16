@@ -3,7 +3,6 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 
-// Load the browser's pure ES module without changing the CommonJS server.
 const model = fs.readFile(path.join(__dirname, '../public/js/progress-data.js'), 'utf8')
   .then((source) => import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`));
 

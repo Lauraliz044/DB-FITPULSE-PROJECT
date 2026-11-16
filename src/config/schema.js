@@ -32,8 +32,6 @@ async function checkSchema(connection) {
     if (identifier && !identifier.extra.includes('auto_increment')) {
       problems.push(`${table}.${columns[0]} needs AUTO_INCREMENT`);
     }
-    // Extra mandatory legacy columns also break INSERTs. Preserve records and
-    // report the incompatibility instead of silently changing the database.
     for (const column of existing) {
       if (!columns.includes(column.columnName) && column.nullable === 'NO' &&
           column.defaultValue === null && !/auto_increment|GENERATED/i.test(column.extra)) {

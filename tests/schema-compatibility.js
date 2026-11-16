@@ -10,7 +10,6 @@ async function main() {
   if (!name || !/^[a-zA-Z0-9_]+_test$/.test(name)) {
     throw new Error('TEST_DB_NAME must end with _test');
   }
-  // A unique schema prevents this drift test from touching integration fixtures.
   const isolated = `${name.slice(0, 28)}_schema_${Date.now()}_test`;
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST, port: Number(process.env.DB_PORT || 3306),

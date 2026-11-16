@@ -1,1 +1,0 @@
-IEEEtran.cls y IEEEtran.bst se distribuyen sin cambios, con su licencia y avisos originales. Fuente: https://mirror.math.princeton.edu/pub/CTAN/macros/latex/contrib/IEEEtran/ (consulta: 2026-11-14). Versión de la clase: 1.8b. No son código propio del proyecto.

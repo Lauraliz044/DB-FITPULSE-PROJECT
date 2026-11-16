@@ -1,4 +1,3 @@
--- Select the intended schema in Workbench before executing this read-only file.
 SELECT DATABASE() AS selected_database, VERSION() AS mysql_version;
 SELECT TABLE_NAME AS table_name, COLUMN_NAME AS column_name,
        COLUMN_TYPE AS column_type, IS_NULLABLE AS is_nullable,

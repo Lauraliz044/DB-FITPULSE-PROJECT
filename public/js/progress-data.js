@@ -1,4 +1,3 @@
-// Dates here are YYYY-MM-DD in the business time zone, not browser-local dates.
 export function weekStart(value) {
   const date = new Date(`${value}T12:00:00Z`);
   date.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7));
